@@ -1,5 +1,0 @@
-
-
-1. Add gitignore
-2. Add/setup koin
-3. Design main screen
