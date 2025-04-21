@@ -9,20 +9,11 @@ It helps users stay focused and productive by breaking work into intervals, usin
 
 ## 🛠️ Project Tasks
 
-### ✅ Project Setup
 - [X] Add `.gitignore`
 - [X] Add & configure [Koin](https://insert-koin.io) for dependency injection
-- [ ] Design the **Main Screen**
-
----
-
-### 🎨 UI Design
-- [ ] ...
-
----
-
-### 🧠 Logic / Architecture (upcoming)
-- [ ] ...
+- [X] Design the **Main Screen**
+- [ ] Choose a name for Tomaten character 
+- [ ] Start working on Tomaten character :)
 
 ---
 
