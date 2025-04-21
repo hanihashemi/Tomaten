@@ -1,4 +1,4 @@
-package io.github.hanihashemi.tomaten.ui.theme
+package io.github.hanihashemi.tomaten.theme
 
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Shapes

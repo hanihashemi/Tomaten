@@ -1,4 +1,4 @@
-package io.github.hanihashemi.tomaten.ui.theme
+package io.github.hanihashemi.tomaten.theme
 
 import android.app.Activity
 import androidx.compose.material3.MaterialTheme

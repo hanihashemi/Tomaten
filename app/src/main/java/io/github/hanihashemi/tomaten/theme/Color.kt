@@ -1,4 +1,4 @@
-package io.github.hanihashemi.tomaten.ui.theme
+package io.github.hanihashemi.tomaten.theme
 
 import androidx.compose.ui.graphics.Color
 
