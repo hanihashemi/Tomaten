@@ -21,5 +21,3 @@ It helps users stay focused and productive by breaking work into intervals, usin
 - [ ] ...
 
 ---
-
-_Last updated: 2025-04-19_
