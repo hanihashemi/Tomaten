@@ -20,15 +20,15 @@ private val LightColorScheme = lightColorScheme(
 
 @Composable
 fun TomatenTheme(content: @Composable () -> Unit) {
-    val view = LocalView.current
-    if (!view.isInEditMode) {
-        SideEffect {
-            (view.context as Activity).window.statusBarColor = LightColorScheme.primary.toArgb()
-            (view.context as Activity).window.navigationBarColor =
-                AndroidNavigationBarColor.toArgb()
-            ViewCompat.getWindowInsetsController(view)?.isAppearanceLightStatusBars = false
-        }
-    }
+//    val view = LocalView.current
+//    if (!view.isInEditMode) {
+//        SideEffect {
+//            (view.context as Activity).window.statusBarColor = LightColorScheme.primary.toArgb()
+//            (view.context as Activity).window.navigationBarColor =
+//                AndroidNavigationBarColor.toArgb()
+//            ViewCompat.getWindowInsetsController(view)?.isAppearanceLightStatusBars = false
+//        }
+//    }
 
     MaterialTheme(
         colorScheme = LightColorScheme,
