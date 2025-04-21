@@ -1,15 +1,36 @@
+# Android Studio
+.idea/
 *.iml
-.gradle
-/local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
-.DS_Store
-/build
-/captures
-.externalNativeBuild
-.cxx
+.gradle/
 local.properties
+
+# Build
+/build/
+/app/build/
+/captures/
+/.externalNativeBuild/
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Log & crash files
+*.log
+crashlytics-build.properties
+
+# Kotlin
+*.kts~
+
+# Generated files
+/buildSrc/.gradle
+/.cxx/
+*.apk
+*.ap_
+
+# Jetpack Compose
+.compose-cache/
+.compose-metrics/
+.compose-build/
+
+# Others
+*.hprof
