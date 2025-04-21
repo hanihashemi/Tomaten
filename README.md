@@ -10,7 +10,7 @@ It helps users stay focused and productive by breaking work into intervals, usin
 ## 🛠️ Project Tasks
 
 ### ✅ Project Setup
-- [ ] Add `.gitignore`
+- [X] Add `.gitignore`
 - [ ] Add & configure [Koin](https://insert-koin.io) for dependency injection
 - [ ] Design the **Main Screen**
 
