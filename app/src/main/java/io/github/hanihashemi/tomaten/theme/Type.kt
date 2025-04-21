@@ -45,4 +45,14 @@ val Typography = Typography(
         fontWeight = FontWeight.Normal,
         fontSize = 12.sp,
     ),
+    titleLarge = TextStyle(
+        fontFamily = fontFamily,
+        fontWeight = FontWeight.Bold,
+        fontSize = 22.sp,
+    ),
+    headlineLarge = TextStyle(
+        fontFamily = fontFamily,
+        fontWeight = FontWeight.Bold,
+        fontSize = 32.sp,
+    )
 )
