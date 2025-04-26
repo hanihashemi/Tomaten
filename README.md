@@ -9,13 +9,12 @@ It helps users stay focused and productive by breaking work into intervals, usin
 
 ## 🛠️ Project Tasks
 
-- [X] Add `.gitignore`
-- [X] Add & configure [Koin](https://insert-koin.io) for dependency injection
-- [X] Design the **Main Screen**
+- ~~[X] Add `.gitignore`~~
+- ~~[X] Add & configure [Koin](https://insert-koin.io) for dependency injection~~
+- ~~[X] Design the **Main Screen**~~
 - [ ] Choose a name for Tomaten character 
-- [X] Start working on Tomaten character :)
-- [X] Ask ChatGPT to draw a character for Tomaten
-- [X] Import Tomaten vector character into project
+- ~~[X] Ask ChatGPT to draw a character for Tomaten~~
+- ~~[X] Import Tomaten vector character into project~~
 - [X] Ask chatGpt to draw Tomaten with drawPath
 - [ ] Create different mouth with emotions :)
 - [ ] Create different composable functions for different emotions
