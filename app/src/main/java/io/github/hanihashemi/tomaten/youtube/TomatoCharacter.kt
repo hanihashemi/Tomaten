@@ -1,4 +1,4 @@
-package io.github.hanihashemi.tomaten.temp
+package io.github.hanihashemi.tomaten.youtube
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxSize
