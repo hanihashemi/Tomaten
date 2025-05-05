@@ -7,6 +7,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -56,6 +57,13 @@ fun MainScreen() {
                 TomatoCharacterChatGptV6(
                     modifier = Modifier
                 )
+
+                Row {
+                    Button("Smile") { }
+                    Button("Neutral") { }
+                    Button("Sad") { }
+                    Button("Surprise") { }
+                }
             }
         }
     }
@@ -75,6 +83,7 @@ fun TomatoCharacterChatGptV6(modifier: Modifier) {
             delay(1000)
             progress.animateTo(1f, animationSpec = tween(800))
             delay(1000)
+            progress.animateTo(1.5f, animationSpec = tween(800))
         }
     }
 
@@ -324,34 +333,99 @@ fun TomatoCharacterChatGptV6(modifier: Modifier) {
         // Morph between smile, neutral, and sad mouths
         val p = progress.value
 
-        val smileCP1 = Offset(111.19.dp.toPx(), 194.31.dp.toPx())
-        val smileCP2 = Offset(119.28.dp.toPx(), 194.62.dp.toPx())
-        val neutralCP1 = Offset(111.5.dp.toPx(), 187.dp.toPx())
-        val neutralCP2 = Offset(119.5.dp.toPx(), 187.dp.toPx())
-        val sadCP1 = Offset(111.dp.toPx(), 179.dp.toPx())
-        val sadCP2 = Offset(119.dp.toPx(), 178.dp.toPx())
+        if (p > 1f) {
+            // Mouth surprised
+            val lipPath = Path().apply {
+                moveTo(128.dp.toPx(), 176.dp.toPx())
+                cubicTo(
+                    134.dp.toPx(),
+                    183.dp.toPx(),
+                    134.dp.toPx(),
+                    194.dp.toPx(),
+                    125.dp.toPx(),
+                    196.dp.toPx()
+                )
+                cubicTo(
+                    122.dp.toPx(),
+                    197.dp.toPx(),
+                    119.dp.toPx(),
+                    198.dp.toPx(),
+                    116.dp.toPx(),
+                    198.dp.toPx()
+                )
+                cubicTo(
+                    113.dp.toPx(),
+                    198.dp.toPx(),
+                    110.dp.toPx(),
+                    197.dp.toPx(),
+                    107.dp.toPx(),
+                    196.dp.toPx()
+                )
+                cubicTo(
+                    98.dp.toPx(),
+                    194.dp.toPx(),
+                    98.dp.toPx(),
+                    183.dp.toPx(),
+                    104.dp.toPx(),
+                    176.dp.toPx()
+                )
+                cubicTo(
+                    111.dp.toPx(),
+                    170.dp.toPx(),
+                    121.dp.toPx(),
+                    170.dp.toPx(),
+                    128.dp.toPx(),
+                    176.dp.toPx()
+                )
+                close()
+            }
 
-        val control1 = when {
-            p < 0.5f -> lerp(smileCP1, neutralCP1, p * 2f)
-            else -> lerp(neutralCP1, sadCP1, (p - 0.5f) * 2f)
-        }
-        val control2 = when {
-            p < 0.5f -> lerp(smileCP2, neutralCP2, p * 2f)
-            else -> lerp(neutralCP2, sadCP2, (p - 0.5f) * 2f)
-        }
-        val start = Offset(97.dp.toPx(), lerp(185.dp.toPx(), 190.dp.toPx(), p))
-        val end = Offset(134.dp.toPx(), lerp(185.dp.toPx(), 190.dp.toPx(), p))
+            drawPath(
+                path = lipPath,
+                color = Color(0xFF191713)
+            )
+        } else {
+            // Control points for a smile mouth curve
+            val smileCP1 = Offset(111.19.dp.toPx(), 194.31.dp.toPx())
+            val smileCP2 = Offset(119.28.dp.toPx(), 194.62.dp.toPx())
 
-        val mouthPath = Path().apply {
-            moveTo(start.x, start.y)
-            cubicTo(control1.x, control1.y, control2.x, control2.y, end.x, end.y)
-        }
+            // Control points for neutral (straight line) mouth
+            val neutralCP1 = Offset(111.5.dp.toPx(), 187.dp.toPx())
+            val neutralCP2 = Offset(119.5.dp.toPx(), 187.dp.toPx())
 
-        drawPath(
-            path = mouthPath,
-            color = Color.Black,
-            style = Stroke(width = 12f, cap = StrokeCap.Round)
-        )
+            // Control points for a sad mouth curve
+            val sadCP1 = Offset(111.dp.toPx(), 179.dp.toPx())
+            val sadCP2 = Offset(119.dp.toPx(), 178.dp.toPx())
+
+            // If p is between 0 and 0.5, interpolate smile -> neutral
+            // If p is between 0.5 and 1, interpolate neutral -> sad
+            // p * 2f or (p - 0.5f) * 2f ensures the sub range is normalized to [0, 1]
+            val control1 = when {
+                p < 0.5f -> lerp(smileCP1, neutralCP1, p * 2f)
+                else -> lerp(neutralCP1, sadCP1, (p - 0.5f) * 2f)
+            }
+            val control2 = when {
+                p < 0.5f -> lerp(smileCP2, neutralCP2, p * 2f)
+                else -> lerp(neutralCP2, sadCP2, (p - 0.5f) * 2f)
+            }
+
+            // Start and end points for the mouth path
+            // Move vertically from 185.dp to 190.dp as p goes from 0 ➝ 1
+            val start = Offset(97.dp.toPx(), lerp(185.dp.toPx(), 190.dp.toPx(), p))
+            val end = Offset(134.dp.toPx(), lerp(185.dp.toPx(), 190.dp.toPx(), p))
+
+            val mouthPath = Path().apply {
+                moveTo(start.x, start.y)
+                // Bezier curve to control1 and control2 for smooth animation
+                cubicTo(control1.x, control1.y, control2.x, control2.y, end.x, end.y)
+            }
+
+            drawPath(
+                path = mouthPath,
+                color = Color.Black,
+                style = Stroke(width = 12f, cap = StrokeCap.Round)
+            )
+        }
     }
 }
 
