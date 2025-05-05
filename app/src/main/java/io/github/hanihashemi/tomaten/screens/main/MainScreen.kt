@@ -1,5 +1,7 @@
 package io.github.hanihashemi.tomaten.screens.main
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -11,21 +13,27 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.lerp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.lerp
 import io.github.hanihashemi.tomaten.Button
 import io.github.hanihashemi.tomaten.ButtonStyles
 import io.github.hanihashemi.tomaten.screens.main.components.TopBar
 import io.github.hanihashemi.tomaten.theme.Dimens
 import io.github.hanihashemi.tomaten.theme.TomatenTheme
+import kotlinx.coroutines.delay
 
 @Composable
 fun MainScreen() {
@@ -45,7 +53,7 @@ fun MainScreen() {
                 Button("Start", modifier = Modifier.widthIn(180.dp)) { }
                 Button("Focus", style = ButtonStyles.Secondary) { }
 
-                TomatoCharacterChatGptV5(
+                TomatoCharacterChatGptV6(
                     modifier = Modifier
                 )
             }
@@ -53,8 +61,23 @@ fun MainScreen() {
     }
 }
 
+
 @Composable
-fun TomatoCharacterChatGptV5(modifier: Modifier) {
+fun TomatoCharacterChatGptV6(modifier: Modifier) {
+    val progress = remember { Animatable(0f) }
+
+    // Animate mouth progress: 0 = happy, 0.5 = neutral, 1 = sad
+    LaunchedEffect(Unit) {
+        while (true) {
+            progress.animateTo(0f, animationSpec = tween(800))
+            delay(1000)
+            progress.animateTo(0.5f, animationSpec = tween(800))
+            delay(1000)
+            progress.animateTo(1f, animationSpec = tween(800))
+            delay(1000)
+        }
+    }
+
     Canvas(
         modifier = modifier
             .size(218.dp, 220.dp)
@@ -298,76 +321,37 @@ fun TomatoCharacterChatGptV5(modifier: Modifier) {
             center = Offset(dpToPx(145.dp), dpToPx(148.29.dp))
         )
 
-        // Mouth smile
-        val mouthPath = Path().apply {
-            moveTo(dpToPx(130.24.dp), dpToPx(165.24.dp))
-            cubicTo(
-                dpToPx(131.53.dp),
-                dpToPx(166.53.dp),
-                dpToPx(131.54.dp),
-                dpToPx(168.64.dp),
-                dpToPx(130.12.dp),
-                dpToPx(169.8.dp)
-            )
-            cubicTo(
-                dpToPx(124.23.dp),
-                dpToPx(174.62.dp),
-                dpToPx(116.82.dp),
-                dpToPx(177.29.dp),
-                dpToPx(109.14.dp),
-                dpToPx(177.29.dp)
-            )
-            cubicTo(
-                dpToPx(101.46.dp),
-                dpToPx(177.29.dp),
-                dpToPx(94.06.dp),
-                dpToPx(174.62.dp),
-                dpToPx(88.16.dp),
-                dpToPx(169.8.dp)
-            )
-            cubicTo(
-                dpToPx(86.75.dp),
-                dpToPx(168.64.dp),
-                dpToPx(86.76.dp),
-                dpToPx(166.53.dp),
-                dpToPx(88.05.dp),
-                dpToPx(165.24.dp)
-            )
-            cubicTo(
-                dpToPx(89.35.dp),
-                dpToPx(163.94.dp),
-                dpToPx(91.43.dp),
-                dpToPx(163.96.dp),
-                dpToPx(92.88.dp),
-                dpToPx(165.08.dp)
-            )
-            cubicTo(
-                dpToPx(97.51.dp),
-                dpToPx(168.68.dp),
-                dpToPx(103.22.dp),
-                dpToPx(170.66.dp),
-                dpToPx(109.14.dp),
-                dpToPx(170.66.dp)
-            )
-            cubicTo(
-                dpToPx(115.07.dp),
-                dpToPx(170.66.dp),
-                dpToPx(120.78.dp),
-                dpToPx(168.68.dp),
-                dpToPx(125.41.dp),
-                dpToPx(165.08.dp)
-            )
-            cubicTo(
-                dpToPx(126.86.dp),
-                dpToPx(163.96.dp),
-                dpToPx(128.94.dp),
-                dpToPx(163.94.dp),
-                dpToPx(130.24.dp),
-                dpToPx(165.24.dp)
-            )
-            close()
+        // Morph between smile, neutral, and sad mouths
+        val p = progress.value
+
+        val smileCP1 = Offset(111.19.dp.toPx(), 194.31.dp.toPx())
+        val smileCP2 = Offset(119.28.dp.toPx(), 194.62.dp.toPx())
+        val neutralCP1 = Offset(111.5.dp.toPx(), 187.dp.toPx())
+        val neutralCP2 = Offset(119.5.dp.toPx(), 187.dp.toPx())
+        val sadCP1 = Offset(111.dp.toPx(), 179.dp.toPx())
+        val sadCP2 = Offset(119.dp.toPx(), 178.dp.toPx())
+
+        val control1 = when {
+            p < 0.5f -> lerp(smileCP1, neutralCP1, p * 2f)
+            else -> lerp(neutralCP1, sadCP1, (p - 0.5f) * 2f)
         }
-        drawPath(path = mouthPath, color = Color(0xFF191713))
+        val control2 = when {
+            p < 0.5f -> lerp(smileCP2, neutralCP2, p * 2f)
+            else -> lerp(neutralCP2, sadCP2, (p - 0.5f) * 2f)
+        }
+        val start = Offset(97.dp.toPx(), lerp(185.dp.toPx(), 190.dp.toPx(), p))
+        val end = Offset(134.dp.toPx(), lerp(185.dp.toPx(), 190.dp.toPx(), p))
+
+        val mouthPath = Path().apply {
+            moveTo(start.x, start.y)
+            cubicTo(control1.x, control1.y, control2.x, control2.y, end.x, end.y)
+        }
+
+        drawPath(
+            path = mouthPath,
+            color = Color.Black,
+            style = Stroke(width = 12f, cap = StrokeCap.Round)
+        )
     }
 }
 
