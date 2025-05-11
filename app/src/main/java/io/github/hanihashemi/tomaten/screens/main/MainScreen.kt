@@ -15,7 +15,10 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -38,6 +41,23 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun MainScreen() {
+
+    var emote by remember { mutableStateOf<TomatoCharacterEmotes>(TomatoCharacterEmotes.Smile) }
+
+    // Animate mouth progress: 0 = happy, 0.5 = neutral, 1 = sad
+    LaunchedEffect(Unit) {
+        while (true) {
+            emote = TomatoCharacterEmotes.Smile
+            delay(1000)
+            emote = TomatoCharacterEmotes.Neutral
+            delay(1000)
+            emote = TomatoCharacterEmotes.Sad
+            delay(1000)
+            emote = TomatoCharacterEmotes.Surprise
+            delay(1000)
+        }
+    }
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = { TopBar() },
@@ -55,7 +75,8 @@ fun MainScreen() {
                 Button("Focus", style = ButtonStyles.Secondary) { }
 
                 TomatoCharacterChatGptV6(
-                    modifier = Modifier
+                    modifier = Modifier,
+                    emote = emote,
                 )
 
                 Row {
@@ -69,21 +90,33 @@ fun MainScreen() {
     }
 }
 
+sealed class TomatoCharacterEmotes(
+    val mouthTargetValue: Float,
+) {
+    data object Smile : TomatoCharacterEmotes(mouthTargetValue = 0f)
+    data object Neutral : TomatoCharacterEmotes(mouthTargetValue = 0.5f)
+    data object Sad : TomatoCharacterEmotes(mouthTargetValue = 1f)
+    data object Surprise : TomatoCharacterEmotes(mouthTargetValue = 1.5f)
+}
+
 
 @Composable
-fun TomatoCharacterChatGptV6(modifier: Modifier) {
+fun TomatoCharacterChatGptV6(modifier: Modifier, emote: TomatoCharacterEmotes) {
     val progress = remember { Animatable(0f) }
 
-    // Animate mouth progress: 0 = happy, 0.5 = neutral, 1 = sad
-    LaunchedEffect(Unit) {
-        while (true) {
-            progress.animateTo(0f, animationSpec = tween(800))
-            delay(1000)
-            progress.animateTo(0.5f, animationSpec = tween(800))
-            delay(1000)
-            progress.animateTo(1f, animationSpec = tween(800))
-            delay(1000)
-            progress.animateTo(1.5f, animationSpec = tween(800))
+    LaunchedEffect(emote) {
+        when (emote) {
+            is TomatoCharacterEmotes.Smile ->
+                progress.animateTo(emote.mouthTargetValue, animationSpec = tween(800))
+
+            is TomatoCharacterEmotes.Neutral ->
+                progress.animateTo(emote.mouthTargetValue, animationSpec = tween(800))
+
+            is TomatoCharacterEmotes.Sad ->
+                progress.animateTo(emote.mouthTargetValue, animationSpec = tween(800))
+
+            is TomatoCharacterEmotes.Surprise ->
+                progress.animateTo(emote.mouthTargetValue, animationSpec = tween(800))
         }
     }
 
