@@ -28,6 +28,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.scale
+import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -37,7 +39,6 @@ import io.github.hanihashemi.tomaten.ButtonStyles
 import io.github.hanihashemi.tomaten.screens.main.components.TopBar
 import io.github.hanihashemi.tomaten.theme.Dimens
 import io.github.hanihashemi.tomaten.theme.TomatenTheme
-import kotlinx.coroutines.delay
 
 @Composable
 fun MainScreen() {
@@ -46,16 +47,16 @@ fun MainScreen() {
 
     // Animate mouth progress: 0 = happy, 0.5 = neutral, 1 = sad
     LaunchedEffect(Unit) {
-        while (true) {
-            emote = TomatoCharacterEmotes.Smile
-            delay(1000)
-            emote = TomatoCharacterEmotes.Neutral
-            delay(1000)
-            emote = TomatoCharacterEmotes.Sad
-            delay(1000)
-            emote = TomatoCharacterEmotes.Surprise
-            delay(1000)
-        }
+//        while (true) {
+//            emote = TomatoCharacterEmotes.Smile
+//            delay(1000)
+//            emote = TomatoCharacterEmotes.Neutral
+//            delay(1000)
+//            emote = TomatoCharacterEmotes.Sad
+//            delay(1000)
+//            emote = TomatoCharacterEmotes.Surprise
+//            delay(1000)
+//        }
     }
 
     Scaffold(
@@ -103,11 +104,19 @@ sealed class TomatoCharacterEmotes(
 @Composable
 fun TomatoCharacterChatGptV6(modifier: Modifier, emote: TomatoCharacterEmotes) {
     val progress = remember { Animatable(0f) }
+    val scale = remember { Animatable(1f) }
 
     LaunchedEffect(emote) {
         when (emote) {
-            is TomatoCharacterEmotes.Smile ->
+            is TomatoCharacterEmotes.Smile -> {
                 progress.animateTo(emote.mouthTargetValue, animationSpec = tween(800))
+                while (true) {
+                    scale.animateTo(
+                        targetValue = 1.02f, animationSpec = tween(durationMillis = 1500)
+                    )
+                    scale.animateTo(targetValue = 1f, animationSpec = tween(durationMillis = 1500))
+                }
+            }
 
             is TomatoCharacterEmotes.Neutral ->
                 progress.animateTo(emote.mouthTargetValue, animationSpec = tween(800))
@@ -130,16 +139,36 @@ fun TomatoCharacterChatGptV6(modifier: Modifier, emote: TomatoCharacterEmotes) {
         val dpToPx = { dp: Dp -> dp.toPx() }
 
         // Red tomato body
+        val scaleFactor = scale.value
+
+        val baseTopLeft = Offset(dpToPx(2.dp), dpToPx(43.dp))
+        val baseSize = Size(dpToPx(213.dp), dpToPx(175.dp))
+
+        // Centered scaling
+        val centerOffset = Offset(
+            baseTopLeft.x + baseSize.width / 2,
+            baseTopLeft.y + baseSize.height / 2
+        )
+
+        val scaledTopLeft = Offset(
+            centerOffset.x - (baseSize.width * scaleFactor) / 2,
+            centerOffset.y - (baseSize.height * scaleFactor) / 2
+        )
+        val scaledSize = Size(
+            baseSize.width * scaleFactor,
+            baseSize.height * scaleFactor
+        )
+
         drawOval(
             color = Color(0xFFFF4B60),
-            topLeft = Offset(dpToPx(2.dp), dpToPx(43.dp)),
-            size = Size(dpToPx(213.dp), dpToPx(175.dp))
+            topLeft = scaledTopLeft,
+            size = scaledSize
         )
 
         drawOval(
             color = Color.Black,
-            topLeft = Offset(dpToPx(2.dp), dpToPx(43.dp)),
-            size = Size(dpToPx(213.dp), dpToPx(175.dp)),
+            topLeft = scaledTopLeft,
+            size = scaledSize,
             style = Stroke(width = dpToPx(3.dp))
         )
 
@@ -348,8 +377,14 @@ fun TomatoCharacterChatGptV6(modifier: Modifier, emote: TomatoCharacterEmotes) {
             )
             close()
         }
-        drawPath(path = leafPath, color = Color.Black, style = Stroke(width = dpToPx(6.dp)))
-        drawPath(path = leafPath, color = Color(0xFF5AAA82))
+        val leafCenter = Offset(dpToPx(110.dp), dpToPx(60.dp))
+
+        withTransform({
+            scale(scale.value, pivot = leafCenter)
+        }) {
+            drawPath(path = leafPath, color = Color.Black, style = Stroke(width = dpToPx(6.dp)))
+            drawPath(path = leafPath, color = Color(0xFF5AAA82))
+        }
 
         // Eyes
         drawCircle(
