@@ -39,6 +39,7 @@ import io.github.hanihashemi.tomaten.ButtonStyles
 import io.github.hanihashemi.tomaten.screens.main.components.TopBar
 import io.github.hanihashemi.tomaten.theme.Dimens
 import io.github.hanihashemi.tomaten.theme.TomatenTheme
+import kotlinx.coroutines.delay
 
 @Composable
 fun MainScreen() {
@@ -47,16 +48,16 @@ fun MainScreen() {
 
     // Animate mouth progress: 0 = happy, 0.5 = neutral, 1 = sad
     LaunchedEffect(Unit) {
-//        while (true) {
-//            emote = TomatoCharacterEmotes.Smile
-//            delay(1000)
-//            emote = TomatoCharacterEmotes.Neutral
-//            delay(1000)
-//            emote = TomatoCharacterEmotes.Sad
-//            delay(1000)
-//            emote = TomatoCharacterEmotes.Surprise
-//            delay(1000)
-//        }
+        while (true) {
+            emote = TomatoCharacterEmotes.Smile
+            delay(1000)
+            emote = TomatoCharacterEmotes.Neutral
+            delay(1000)
+            emote = TomatoCharacterEmotes.Sad
+            delay(1000)
+            emote = TomatoCharacterEmotes.Surprise
+            delay(1000)
+        }
     }
 
     Scaffold(
@@ -403,47 +404,35 @@ fun TomatoCharacterChatGptV6(modifier: Modifier, emote: TomatoCharacterEmotes) {
 
         if (p > 1f) {
             // Mouth surprised
+            val xOffset = -5.dp.toPx() // Move 10dp to the left
+            val yOffset = 0.dp.toPx()   // No vertical movement
+
             val lipPath = Path().apply {
-                moveTo(128.dp.toPx(), 176.dp.toPx())
+                moveTo(128.dp.toPx() + xOffset, 176.dp.toPx() + yOffset)
                 cubicTo(
-                    134.dp.toPx(),
-                    183.dp.toPx(),
-                    134.dp.toPx(),
-                    194.dp.toPx(),
-                    125.dp.toPx(),
-                    196.dp.toPx()
+                    134.dp.toPx() + xOffset, 183.dp.toPx() + yOffset,
+                    134.dp.toPx() + xOffset, 194.dp.toPx() + yOffset,
+                    125.dp.toPx() + xOffset, 196.dp.toPx() + yOffset
                 )
                 cubicTo(
-                    122.dp.toPx(),
-                    197.dp.toPx(),
-                    119.dp.toPx(),
-                    198.dp.toPx(),
-                    116.dp.toPx(),
-                    198.dp.toPx()
+                    122.dp.toPx() + xOffset, 197.dp.toPx() + yOffset,
+                    119.dp.toPx() + xOffset, 198.dp.toPx() + yOffset,
+                    116.dp.toPx() + xOffset, 198.dp.toPx() + yOffset
                 )
                 cubicTo(
-                    113.dp.toPx(),
-                    198.dp.toPx(),
-                    110.dp.toPx(),
-                    197.dp.toPx(),
-                    107.dp.toPx(),
-                    196.dp.toPx()
+                    113.dp.toPx() + xOffset, 198.dp.toPx() + yOffset,
+                    110.dp.toPx() + xOffset, 197.dp.toPx() + yOffset,
+                    107.dp.toPx() + xOffset, 196.dp.toPx() + yOffset
                 )
                 cubicTo(
-                    98.dp.toPx(),
-                    194.dp.toPx(),
-                    98.dp.toPx(),
-                    183.dp.toPx(),
-                    104.dp.toPx(),
-                    176.dp.toPx()
+                    98.dp.toPx() + xOffset, 194.dp.toPx() + yOffset,
+                    98.dp.toPx() + xOffset, 183.dp.toPx() + yOffset,
+                    104.dp.toPx() + xOffset, 176.dp.toPx() + yOffset
                 )
                 cubicTo(
-                    111.dp.toPx(),
-                    170.dp.toPx(),
-                    121.dp.toPx(),
-                    170.dp.toPx(),
-                    128.dp.toPx(),
-                    176.dp.toPx()
+                    111.dp.toPx() + xOffset, 170.dp.toPx() + yOffset,
+                    121.dp.toPx() + xOffset, 170.dp.toPx() + yOffset,
+                    128.dp.toPx() + xOffset, 176.dp.toPx() + yOffset
                 )
                 close()
             }
@@ -454,37 +443,37 @@ fun TomatoCharacterChatGptV6(modifier: Modifier, emote: TomatoCharacterEmotes) {
             )
         } else {
             // Control points for a smile mouth curve
-            val smileCP1 = Offset(111.19.dp.toPx(), 194.31.dp.toPx())
-            val smileCP2 = Offset(119.28.dp.toPx(), 194.62.dp.toPx())
+            val xOffset = -10.dp.toPx() // Move left
+            val yOffset = 0.dp.toPx()   // No vertical move
+
+            // Control points for a smile mouth curve
+            val smileCP1 = Offset(111.dp.toPx() + xOffset, 194.dp.toPx() + yOffset)
+            val smileCP2 = Offset(119.dp.toPx() + xOffset, 194.dp.toPx() + yOffset)
 
             // Control points for neutral (straight line) mouth
-            val neutralCP1 = Offset(111.5.dp.toPx(), 187.dp.toPx())
-            val neutralCP2 = Offset(119.5.dp.toPx(), 187.dp.toPx())
+            val neutralCP1 = Offset(111.dp.toPx() + xOffset, 187.dp.toPx() + yOffset)
+            val neutralCP2 = Offset(119.dp.toPx() + xOffset, 187.dp.toPx() + yOffset)
 
             // Control points for a sad mouth curve
-            val sadCP1 = Offset(111.dp.toPx(), 179.dp.toPx())
-            val sadCP2 = Offset(119.dp.toPx(), 178.dp.toPx())
+            val sadCP1 = Offset(111.dp.toPx() + xOffset, 179.dp.toPx() + yOffset)
+            val sadCP2 = Offset(119.dp.toPx() + xOffset, 178.dp.toPx() + yOffset)
 
             // If p is between 0 and 0.5, interpolate smile -> neutral
             // If p is between 0.5 and 1, interpolate neutral -> sad
-            // p * 2f or (p - 0.5f) * 2f ensures the sub range is normalized to [0, 1]
-            val control1 = when {
-                p < 0.5f -> lerp(smileCP1, neutralCP1, p * 2f)
-                else -> lerp(neutralCP1, sadCP1, (p - 0.5f) * 2f)
-            }
-            val control2 = when {
-                p < 0.5f -> lerp(smileCP2, neutralCP2, p * 2f)
-                else -> lerp(neutralCP2, sadCP2, (p - 0.5f) * 2f)
-            }
+            val control1 = if (p < 0.5f) lerp(smileCP1, neutralCP1, p * 2f)
+            else lerp(neutralCP1, sadCP1, (p - 0.5f) * 2f)
 
-            // Start and end points for the mouth path
-            // Move vertically from 185.dp to 190.dp as p goes from 0 ➝ 1
-            val start = Offset(97.dp.toPx(), lerp(185.dp.toPx(), 190.dp.toPx(), p))
-            val end = Offset(134.dp.toPx(), lerp(185.dp.toPx(), 190.dp.toPx(), p))
+            val control2 = if (p < 0.5f) lerp(smileCP2, neutralCP2, p * 2f)
+            else lerp(neutralCP2, sadCP2, (p - 0.5f) * 2f)
+
+            // Start and end points for the mouth path (vertical lerp included)
+            val start =
+                Offset(97.dp.toPx() + xOffset, lerp(185.dp.toPx(), 190.dp.toPx(), p) + yOffset)
+            val end =
+                Offset(134.dp.toPx() + xOffset, lerp(185.dp.toPx(), 190.dp.toPx(), p) + yOffset)
 
             val mouthPath = Path().apply {
                 moveTo(start.x, start.y)
-                // Bezier curve to control1 and control2 for smooth animation
                 cubicTo(control1.x, control1.y, control2.x, control2.y, end.x, end.y)
             }
 
