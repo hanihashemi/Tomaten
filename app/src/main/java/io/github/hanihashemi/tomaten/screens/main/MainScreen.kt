@@ -39,26 +39,11 @@ import io.github.hanihashemi.tomaten.ButtonStyles
 import io.github.hanihashemi.tomaten.screens.main.components.TopBar
 import io.github.hanihashemi.tomaten.theme.Dimens
 import io.github.hanihashemi.tomaten.theme.TomatenTheme
-import kotlinx.coroutines.delay
 
 @Composable
 fun MainScreen() {
 
     var emote by remember { mutableStateOf<TomatoCharacterEmotes>(TomatoCharacterEmotes.Smile) }
-
-    // Animate mouth progress: 0 = happy, 0.5 = neutral, 1 = sad
-    LaunchedEffect(Unit) {
-        while (true) {
-            emote = TomatoCharacterEmotes.Smile
-            delay(1000)
-            emote = TomatoCharacterEmotes.Neutral
-            delay(1000)
-            emote = TomatoCharacterEmotes.Sad
-            delay(1000)
-            emote = TomatoCharacterEmotes.Surprise
-            delay(1000)
-        }
-    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -82,10 +67,16 @@ fun MainScreen() {
                 )
 
                 Row {
-                    Button("Smile") { }
-                    Button("Neutral") { }
-                    Button("Sad") { }
-                    Button("Surprise") { }
+                    Button("Smile") {
+                        emote = TomatoCharacterEmotes.Smile
+                    }
+                    Button("Neutral") {
+                        emote = TomatoCharacterEmotes.Neutral
+                    }
+                    Button("Sad") {
+                        emote = TomatoCharacterEmotes.Sad
+                    }
+                    Button("Surprise") { emote = TomatoCharacterEmotes.Surprise }
                 }
             }
         }
@@ -406,8 +397,8 @@ fun TomatoCharacterChatGptV6(modifier: Modifier, emote: TomatoCharacterEmotes) {
 
         if (p > 1f) {
             // Mouth surprised
-            val xOffset = -5.dp.toPx() // Move 10dp to the left
-            val yOffset = 0.dp.toPx()   // No vertical movement
+            val xOffset = -6.dp.toPx() // Move 10dp to the left
+            val yOffset = -2.dp.toPx()   // No vertical movement
 
             val lipPath = Path().apply {
                 moveTo(128.dp.toPx() + xOffset, 176.dp.toPx() + yOffset)
@@ -459,7 +450,7 @@ fun TomatoCharacterChatGptV6(modifier: Modifier, emote: TomatoCharacterEmotes) {
             )
         } else {
             // Control points for a smile mouth curve
-            val xMOffset = -10.dp.toPx() // Move left
+            val xMOffset = -6.dp.toPx() // Move left
             val yMOffset = 0.dp.toPx()   // No vertical move
 
             // Control points for a smile mouth curve
