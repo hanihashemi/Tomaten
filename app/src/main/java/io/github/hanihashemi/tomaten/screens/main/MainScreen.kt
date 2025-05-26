@@ -1,6 +1,7 @@
 package io.github.hanihashemi.tomaten.screens.main
 
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -39,6 +40,7 @@ import io.github.hanihashemi.tomaten.ButtonStyles
 import io.github.hanihashemi.tomaten.screens.main.components.TopBar
 import io.github.hanihashemi.tomaten.theme.Dimens
 import io.github.hanihashemi.tomaten.theme.TomatenTheme
+import kotlinx.coroutines.launch
 
 @Composable
 fun MainScreen() {
@@ -95,36 +97,59 @@ sealed class TomatoCharacterEmotes(
 
 @Composable
 fun TomatoCharacterChatGptV6(modifier: Modifier, emote: TomatoCharacterEmotes) {
+    var previousEmote by remember { mutableStateOf<TomatoCharacterEmotes?>(null) }
+
     val progress = remember { Animatable(0f) }
     val scale = remember { Animatable(1f) }
+    val surpriseMouthScale = remember { Animatable(0.6f) }
+    val surpriseMouthAlpha = remember { Animatable(0f) }
 
     LaunchedEffect(emote) {
+        val animationDelay = if (previousEmote is TomatoCharacterEmotes.Surprise) 0 else 800
+
         when (emote) {
             is TomatoCharacterEmotes.Smile -> {
-                progress.animateTo(emote.mouthTargetValue, animationSpec = tween(800))
-                while (true) {
-                    scale.animateTo(
-                        targetValue = 1.02f, animationSpec = tween(durationMillis = 1500)
-                    )
-                    scale.animateTo(targetValue = 1f, animationSpec = tween(durationMillis = 1500))
-                }
+                progress.animateTo(emote.mouthTargetValue, animationSpec = tween(animationDelay))
+//                while (true) {
+//                    scale.animateTo(
+//                        targetValue = 1.02f, animationSpec = tween(durationMillis = 1500)
+//                    )
+//                    scale.animateTo(targetValue = 1f, animationSpec = tween(durationMillis = 1500))
+//                }
             }
 
             is TomatoCharacterEmotes.Neutral -> progress.animateTo(
                 emote.mouthTargetValue,
-                animationSpec = tween(800)
+                animationSpec = tween(animationDelay)
             )
 
             is TomatoCharacterEmotes.Sad -> progress.animateTo(
                 emote.mouthTargetValue,
-                animationSpec = tween(800)
+                animationSpec = tween(animationDelay)
             )
 
-            is TomatoCharacterEmotes.Surprise -> progress.animateTo(
-                emote.mouthTargetValue,
-                animationSpec = tween(800)
-            )
+            is TomatoCharacterEmotes.Surprise -> {
+                launch {
+                    surpriseMouthScale.snapTo(0.6f)
+                    surpriseMouthScale.animateTo(
+                        targetValue = 1f,
+                        animationSpec = tween(durationMillis = 400, easing = FastOutSlowInEasing)
+                    )
+                }
+                launch {
+                    surpriseMouthAlpha.snapTo(0f)
+                    surpriseMouthAlpha.animateTo(
+                        targetValue = 1f,
+                        animationSpec = tween(durationMillis = 400, easing = FastOutSlowInEasing)
+                    )
+                }
+                progress.animateTo(
+                    emote.mouthTargetValue,
+                    animationSpec = tween(0)
+                )
+            }
         }
+        previousEmote = emote
     }
 
     Canvas(
@@ -445,9 +470,14 @@ fun TomatoCharacterChatGptV6(modifier: Modifier, emote: TomatoCharacterEmotes) {
                 close()
             }
 
-            drawPath(
-                path = lipPath, color = Color(0xFF191713)
-            )
+            withTransform({
+                scale(surpriseMouthScale.value, pivot = Offset(dpToPx(116.dp), dpToPx(185.dp)))
+            }) {
+                drawPath(
+                    path = lipPath,
+                    color = Color(0xFF191713).copy(alpha = surpriseMouthAlpha.value)
+                )
+            }
         } else {
             // Control points for a smile mouth curve
             val xMOffset = -6.dp.toPx() // Move left
