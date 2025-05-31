@@ -4,8 +4,6 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -117,16 +115,18 @@ fun TomatoCharacterChatGptV6(modifier: Modifier, emote: TomatoCharacterEmotes) {
             eyeYOffset.animateTo(0f, tween(100))
             eyeScale.animateTo(1f, tween(200))
         }
+        launch {
+            while (true) {
+                scale.animateTo(
+                    targetValue = 1.02f, animationSpec = tween(durationMillis = 2000)
+                )
+                scale.animateTo(targetValue = 1f, animationSpec = tween(durationMillis = 2000))
+            }
+        }
 
         when (emote) {
             is TomatoCharacterEmotes.Smile -> {
                 progress.animateTo(emote.mouthTargetValue, animationSpec = tween(animationDelay))
-//                while (true) {
-//                    scale.animateTo(
-//                        targetValue = 1.02f, animationSpec = tween(durationMillis = 1500)
-//                    )
-//                    scale.animateTo(targetValue = 1f, animationSpec = tween(durationMillis = 1500))
-//                }
             }
 
             is TomatoCharacterEmotes.Neutral -> progress.animateTo(
@@ -195,10 +195,7 @@ fun TomatoCharacterChatGptV6(modifier: Modifier, emote: TomatoCharacterEmotes) {
     }
 
     Canvas(
-        modifier = modifier
-            .size(218.dp, 220.dp)
-            .border(width = 1.dp, color = Color.Red)
-            .background(Color.Green)
+        modifier = modifier.size(218.dp, 220.dp)
     ) {
         withTransform({
             translate(left = surpriseOffsetX.value, top = surpriseOffsetY.value)
@@ -453,9 +450,9 @@ fun TomatoCharacterChatGptV6(modifier: Modifier, emote: TomatoCharacterEmotes) {
             // Eyes
             val baseEyeRadius = dpToPx(11.dp)
             val leftEyeCenter =
-                Offset(dpToPx(73.dp) , dpToPx(148.29.dp) + eyeYOffset.value)
+                Offset(dpToPx(73.dp), dpToPx(148.29.dp) + eyeYOffset.value)
             val rightEyeCenter =
-                Offset(dpToPx(145.dp) , dpToPx(148.29.dp) + eyeYOffset.value)
+                Offset(dpToPx(145.dp), dpToPx(148.29.dp) + eyeYOffset.value)
 
             drawCircle(
                 color = Color(0xFF191713),
