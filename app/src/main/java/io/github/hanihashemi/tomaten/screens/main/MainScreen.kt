@@ -105,9 +105,18 @@ fun TomatoCharacterChatGptV6(modifier: Modifier, emote: TomatoCharacterEmotes) {
     val scale = remember { Animatable(1f) }
     val surpriseMouthScale = remember { Animatable(0.6f) }
     val surpriseMouthAlpha = remember { Animatable(0f) }
+    val eyeYOffset = remember { Animatable(0f) }
+    val eyeScale = remember { Animatable(1f) }
 
     LaunchedEffect(emote) {
         val animationDelay = if (previousEmote is TomatoCharacterEmotes.Surprise) 0 else 800
+
+
+        // Reset eyes animation
+        launch {
+            eyeYOffset.animateTo(0f, tween(100))
+            eyeScale.animateTo(1f, tween(200))
+        }
 
         when (emote) {
             is TomatoCharacterEmotes.Smile -> {
@@ -125,12 +134,23 @@ fun TomatoCharacterChatGptV6(modifier: Modifier, emote: TomatoCharacterEmotes) {
                 animationSpec = tween(animationDelay)
             )
 
-            is TomatoCharacterEmotes.Sad -> progress.animateTo(
-                emote.mouthTargetValue,
-                animationSpec = tween(animationDelay)
-            )
+            is TomatoCharacterEmotes.Sad -> {
+                launch {
+                    eyeScale.animateTo(0.75f, tween(durationMillis = 200))
+                }
+                launch {
+                    eyeYOffset.animateTo(6f, tween(durationMillis = 400))
+                }
+                progress.animateTo(
+                    emote.mouthTargetValue,
+                    animationSpec = tween(animationDelay)
+                )
+            }
 
             is TomatoCharacterEmotes.Surprise -> {
+                launch {
+                    eyeScale.animateTo(1.25f, tween(durationMillis = 200))
+                }
                 launch {
                     surpriseMouthScale.snapTo(0.6f)
                     surpriseMouthScale.animateTo(
@@ -431,15 +451,21 @@ fun TomatoCharacterChatGptV6(modifier: Modifier, emote: TomatoCharacterEmotes) {
             }
 
             // Eyes
+            val baseEyeRadius = dpToPx(11.dp)
+            val leftEyeCenter =
+                Offset(dpToPx(73.dp) , dpToPx(148.29.dp) + eyeYOffset.value)
+            val rightEyeCenter =
+                Offset(dpToPx(145.dp) , dpToPx(148.29.dp) + eyeYOffset.value)
+
             drawCircle(
                 color = Color(0xFF191713),
-                radius = dpToPx(10.dp),
-                center = Offset(dpToPx(73.dp), dpToPx(148.29.dp))
+                radius = baseEyeRadius * eyeScale.value,
+                center = leftEyeCenter
             )
             drawCircle(
                 color = Color(0xFF191713),
-                radius = dpToPx(10.dp),
-                center = Offset(dpToPx(145.dp), dpToPx(148.29.dp))
+                radius = baseEyeRadius * eyeScale.value,
+                center = rightEyeCenter
             )
 
             // Morph between smile, neutral, and sad mouths
@@ -546,7 +572,7 @@ fun TomatoCharacterChatGptV6(modifier: Modifier, emote: TomatoCharacterEmotes) {
                 drawPath(
                     path = mouthPath,
                     color = Color.Black,
-                    style = Stroke(width = 12f, cap = StrokeCap.Round)
+                    style = Stroke(width = 20f, cap = StrokeCap.Round)
                 )
             }
         }
