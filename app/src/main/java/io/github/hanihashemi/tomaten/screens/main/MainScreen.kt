@@ -1,5 +1,6 @@
 package io.github.hanihashemi.tomaten.screens.main
 
+import android.media.MediaPlayer
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -29,12 +31,14 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.drawscope.withTransform
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
 import io.github.hanihashemi.tomaten.Button
 import io.github.hanihashemi.tomaten.ButtonStyles
+import io.github.hanihashemi.tomaten.R
 import io.github.hanihashemi.tomaten.screens.main.components.TopBar
 import io.github.hanihashemi.tomaten.theme.Dimens
 import io.github.hanihashemi.tomaten.theme.TomatenTheme
@@ -42,6 +46,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun MainScreen() {
+    val context = LocalContext.current
 
     var emote by remember { mutableStateOf<TomatoCharacterEmotes>(TomatoCharacterEmotes.Smile) }
 
@@ -95,8 +100,31 @@ sealed class TomatoCharacterEmotes(
 
 @Composable
 fun TomatoCharacterChatGptV6(modifier: Modifier, emote: TomatoCharacterEmotes) {
-    var previousEmote by remember { mutableStateOf<TomatoCharacterEmotes?>(null) }
+    // Initial sound effects
+    val context = LocalContext.current
+    val smilePlayer = remember {
+        MediaPlayer.create(context, R.raw.smile)
+    }
+    val neutralPlayer = remember {
+        MediaPlayer.create(context, R.raw.neutral)
+    }
+    val sadPlayer = remember {
+        MediaPlayer.create(context, R.raw.sad)
+    }
+    val surprisePlayer = remember {
+        MediaPlayer.create(context, R.raw.surprised)
+    }
 
+    DisposableEffect(Unit) {
+        onDispose {
+            smilePlayer.release()
+            neutralPlayer.release()
+            sadPlayer.release()
+            surprisePlayer.release()
+        }
+    }
+
+    var previousEmote by remember { mutableStateOf<TomatoCharacterEmotes?>(null) }
     val progress = remember { Animatable(0f) }
     val surpriseOffsetX = remember { Animatable(0f) }
     val surpriseOffsetY = remember { Animatable(0f) }
@@ -126,15 +154,20 @@ fun TomatoCharacterChatGptV6(modifier: Modifier, emote: TomatoCharacterEmotes) {
 
         when (emote) {
             is TomatoCharacterEmotes.Smile -> {
+                smilePlayer.start()
                 progress.animateTo(emote.mouthTargetValue, animationSpec = tween(animationDelay))
             }
 
-            is TomatoCharacterEmotes.Neutral -> progress.animateTo(
-                emote.mouthTargetValue,
-                animationSpec = tween(animationDelay)
-            )
+            is TomatoCharacterEmotes.Neutral -> {
+                neutralPlayer.start()
+                progress.animateTo(
+                    emote.mouthTargetValue,
+                    animationSpec = tween(animationDelay)
+                )
+            }
 
             is TomatoCharacterEmotes.Sad -> {
+                sadPlayer.start()
                 launch {
                     eyeScale.animateTo(0.75f, tween(durationMillis = 200))
                 }
@@ -148,6 +181,7 @@ fun TomatoCharacterChatGptV6(modifier: Modifier, emote: TomatoCharacterEmotes) {
             }
 
             is TomatoCharacterEmotes.Surprise -> {
+                surprisePlayer.start()
                 launch {
                     eyeScale.animateTo(1.25f, tween(durationMillis = 200))
                 }
