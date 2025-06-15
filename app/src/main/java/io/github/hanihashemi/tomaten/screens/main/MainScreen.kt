@@ -12,10 +12,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,22 +43,29 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
 import io.github.hanihashemi.tomaten.Button
 import io.github.hanihashemi.tomaten.ButtonStyles
+import io.github.hanihashemi.tomaten.MainViewModel
 import io.github.hanihashemi.tomaten.R
 import io.github.hanihashemi.tomaten.screens.main.components.TopBar
 import io.github.hanihashemi.tomaten.theme.Dimens
 import io.github.hanihashemi.tomaten.theme.TomatenTheme
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun MainScreen() {
+fun MainScreen(
+
+) {
     val context = LocalContext.current
+    val viewModel: MainViewModel = koinViewModel()
+    val uiState by viewModel.uiState.collectAsState()
+    val actions = viewModel.actions
 
     var emote by remember { mutableStateOf<TomatoCharacterEmotes>(TomatoCharacterEmotes.Smile) }
     var isZoomed by remember { mutableStateOf(false) }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        topBar = { TopBar() },
+        topBar = { TopBar(actions) },
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -91,6 +101,34 @@ fun MainScreen() {
                     Button("Surprise") { emote = TomatoCharacterEmotes.Surprise }
                 }
             }
+        }
+
+        if (uiState.loggingDialogVisible) {
+            AlertDialog(
+                onDismissRequest = { actions.login.dismissDialog() },
+                title = {
+                    Text(text = "Login")
+                },
+                text = {
+                    Text("Here you can show login instructions or progress.")
+                },
+                confirmButton = {
+                    Button(
+                        text = "Proceed",
+                        onClick = {
+
+                        }
+                    )
+                },
+                dismissButton = {
+                    Button(
+                        text = "Cancel",
+                        onClick = {
+                            actions.login.dismissDialog()
+                        }
+                    )
+                }
+            )
         }
     }
 }

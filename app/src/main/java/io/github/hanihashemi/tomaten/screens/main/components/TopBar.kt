@@ -10,17 +10,21 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import io.github.hanihashemi.tomaten.Actions
 import io.github.hanihashemi.tomaten.Button
 import io.github.hanihashemi.tomaten.ButtonStyles
+import io.github.hanihashemi.tomaten.UIState
 import io.github.hanihashemi.tomaten.theme.Dimens
 import io.github.hanihashemi.tomaten.theme.TomatenTheme
 import io.github.hanihashemi.tomaten.theme.Typography
+import kotlinx.coroutines.flow.MutableStateFlow
 
 @Composable
-fun TopBar() {
+fun TopBar(actions: Actions) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -38,7 +42,7 @@ fun TopBar() {
             style = ButtonStyles.Secondary,
             modifier = Modifier.offset(x = Dimens.PaddingNormal)
         ) {
-
+            actions.login.openDialog()
         }
     }
 }
@@ -47,6 +51,6 @@ fun TopBar() {
 @Composable
 private fun TopBarPreview() {
     TomatenTheme {
-        TopBar()
+        TopBar(actions = Actions(MutableStateFlow(UIState())))
     }
 }
