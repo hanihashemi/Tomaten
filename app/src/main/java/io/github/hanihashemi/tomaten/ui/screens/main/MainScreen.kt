@@ -1,4 +1,4 @@
-package io.github.hanihashemi.tomaten.screens.main
+package io.github.hanihashemi.tomaten.ui.screens.main
 
 import android.media.MediaPlayer
 import androidx.compose.animation.core.Animatable
@@ -45,9 +45,9 @@ import io.github.hanihashemi.tomaten.Button
 import io.github.hanihashemi.tomaten.ButtonStyles
 import io.github.hanihashemi.tomaten.MainViewModel
 import io.github.hanihashemi.tomaten.R
-import io.github.hanihashemi.tomaten.screens.main.components.TopBar
 import io.github.hanihashemi.tomaten.theme.Dimens
 import io.github.hanihashemi.tomaten.theme.TomatenTheme
+import io.github.hanihashemi.tomaten.ui.screens.main.components.TopBar
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
