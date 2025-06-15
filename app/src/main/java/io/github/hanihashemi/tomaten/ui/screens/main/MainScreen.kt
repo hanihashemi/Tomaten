@@ -12,9 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -47,6 +45,7 @@ import io.github.hanihashemi.tomaten.MainViewModel
 import io.github.hanihashemi.tomaten.R
 import io.github.hanihashemi.tomaten.theme.Dimens
 import io.github.hanihashemi.tomaten.theme.TomatenTheme
+import io.github.hanihashemi.tomaten.ui.dialogs.login.LoginDialog
 import io.github.hanihashemi.tomaten.ui.screens.main.components.TopBar
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
@@ -103,33 +102,10 @@ fun MainScreen(
             }
         }
 
-        if (uiState.loggingDialogVisible) {
-            AlertDialog(
-                onDismissRequest = { actions.login.dismissDialog() },
-                title = {
-                    Text(text = "Login")
-                },
-                text = {
-                    Text("Here you can show login instructions or progress.")
-                },
-                confirmButton = {
-                    Button(
-                        text = "Proceed",
-                        onClick = {
-
-                        }
-                    )
-                },
-                dismissButton = {
-                    Button(
-                        text = "Cancel",
-                        onClick = {
-                            actions.login.dismissDialog()
-                        }
-                    )
-                }
-            )
-        }
+        LoginDialog(
+            uiState = uiState,
+            actions = actions,
+        )
     }
 }
 
