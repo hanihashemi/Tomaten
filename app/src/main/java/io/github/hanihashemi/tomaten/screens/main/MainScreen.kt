@@ -31,7 +31,9 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.drawscope.withTransform
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -49,6 +51,7 @@ fun MainScreen() {
     val context = LocalContext.current
 
     var emote by remember { mutableStateOf<TomatoCharacterEmotes>(TomatoCharacterEmotes.Smile) }
+    var isZoomed by remember { mutableStateOf(false) }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -69,9 +72,13 @@ fun MainScreen() {
                 TomatoCharacterChatGptV6(
                     modifier = Modifier,
                     emote = emote,
+                    isZoomed = isZoomed,
                 )
 
                 Row {
+                    Button("Toggle Zoom") {
+                        isZoomed = !isZoomed
+                    }
                     Button("Smile") {
                         emote = TomatoCharacterEmotes.Smile
                     }
@@ -99,7 +106,9 @@ sealed class TomatoCharacterEmotes(
 
 
 @Composable
-fun TomatoCharacterChatGptV6(modifier: Modifier, emote: TomatoCharacterEmotes) {
+fun TomatoCharacterChatGptV6(
+    modifier: Modifier, emote: TomatoCharacterEmotes, isZoomed: Boolean
+) {
     // Initial sound effects
     val context = LocalContext.current
     val smilePlayer = remember {
@@ -133,6 +142,33 @@ fun TomatoCharacterChatGptV6(modifier: Modifier, emote: TomatoCharacterEmotes) {
     val surpriseMouthAlpha = remember { Animatable(0f) }
     val eyeYOffset = remember { Animatable(0f) }
     val eyeScale = remember { Animatable(1f) }
+    val zoomScale = remember { Animatable(1f) }
+    val zoomOffsetY = remember { Animatable(0f) }
+    val density = LocalDensity.current
+    val configuration = LocalConfiguration.current
+    val screenHeightPx = with(density) { configuration.screenHeightDp.dp.toPx() }
+    val eyesYPositionPx = with(density) { 148.dp.toPx() } // Y of eyes in your drawing
+
+    LaunchedEffect(isZoomed) {
+        if (isZoomed) {
+            // Desired scale
+            launch {
+                zoomScale.animateTo(2.5f, tween(800))
+            }
+            // Desired offset: push so only eyes stay visible
+            val desiredOffset = screenHeightPx / 5f //- eyesYPositionPx
+            launch {
+                zoomOffsetY.animateTo(desiredOffset, tween(800))
+            }
+        } else {
+            launch {
+                zoomScale.animateTo(1f, tween(800))
+            }
+            launch {
+                zoomOffsetY.animateTo(0f, tween(800))
+            }
+        }
+    }
 
     LaunchedEffect(emote) {
         val animationDelay = if (previousEmote is TomatoCharacterEmotes.Surprise) 0 else 800
@@ -228,17 +264,23 @@ fun TomatoCharacterChatGptV6(modifier: Modifier, emote: TomatoCharacterEmotes) {
         previousEmote = emote
     }
 
+    val totalScale = scale.value * zoomScale.value
+    val totalOffsetX = surpriseOffsetX.value
+    val totalOffsetY = surpriseOffsetY.value + zoomOffsetY.value
+
     Canvas(
         modifier = modifier.size(218.dp, 220.dp)
     ) {
+
         withTransform({
-            translate(left = surpriseOffsetX.value, top = surpriseOffsetY.value)
+            translate(left = totalOffsetX, top = totalOffsetY)
+            scale(scale = totalScale, pivot = Offset(size.width / 2, size.height / 2))
         }) {
             // Use this to convert dp to px inside the Canvas
             val dpToPx = { dp: Dp -> dp.toPx() }
 
             // Red tomato body
-            val scaleFactor = scale.value
+            val scaleFactor = 1f // not needed anymore here because totalScale applies globally
 
             val baseTopLeft = Offset(dpToPx(2.dp), dpToPx(43.dp))
             val baseSize = Size(dpToPx(213.dp), dpToPx(175.dp))
