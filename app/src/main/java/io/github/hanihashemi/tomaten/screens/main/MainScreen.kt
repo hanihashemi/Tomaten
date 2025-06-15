@@ -146,9 +146,9 @@ fun TomatoCharacterChatGptV6(modifier: Modifier, emote: TomatoCharacterEmotes) {
         launch {
             while (true) {
                 scale.animateTo(
-                    targetValue = 1.02f, animationSpec = tween(durationMillis = 2000)
+                    targetValue = 1.05f, animationSpec = tween(durationMillis = 1800)
                 )
-                scale.animateTo(targetValue = 1f, animationSpec = tween(durationMillis = 2000))
+                scale.animateTo(targetValue = 1f, animationSpec = tween(durationMillis = 1800))
             }
         }
 
