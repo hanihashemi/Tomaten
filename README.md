@@ -15,9 +15,13 @@ It helps users stay focused and productive by breaking work into intervals, usin
 - [ ] Choose a name for Tomaten character 
 - ~~[X] Ask ChatGPT to draw a character for Tomaten~~
 - ~~[X] Import Tomaten vector character into project~~
-- [X] Ask chatGpt to draw Tomaten with drawPath
-- [ ] Create different mouth with emotions :)
-- [ ] Create different composable functions for different emotions
+- ~~[X] Ask chatGpt to draw Tomaten with drawPath~~
+- ~~[X] Create different mouth with emotions :)~~
+- ~~[X] Create different composable functions for different emotions~~
+- [ ] Login/Register with Firebase
+- [ ] Add a timer countdown
+- [ ] Store/Fetch from realtime database.
+- [ ] 
 
 ---
 
