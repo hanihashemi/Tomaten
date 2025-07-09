@@ -1,39 +1,41 @@
 package io.github.hanihashemi.tomaten
 
+import android.net.Uri
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import io.github.hanihashemi.tomaten.extensions.launchSafely
+import io.github.hanihashemi.tomaten.ui.actions.Actions
+import io.github.hanihashemi.tomaten.ui.events.UiEvents
+import io.github.hanihashemi.tomaten.ui.states.UIState
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.update
 
-class MainViewModel : ViewModel() {
+open class MainViewModel : ViewModel() {
 
-    val uiState = MutableStateFlow(UIState())
-    val actions = Actions(uiState)
+    private val _uiEvents = MutableSharedFlow<UiEvents>(replay = 0)
+    val uiEvents = _uiEvents.asSharedFlow()
+    private val _uiState = MutableStateFlow(UIState())
+    val uiState: StateFlow<UIState> = _uiState
+    val actions: Actions by lazy { Actions(this) }
+
+    fun updateState(transform: (UIState) -> UIState) {
+        _uiState.update(transform)
+    }
+
+    fun sendEvent(event: UiEvents) {
+        viewModelScope.launchSafely(Dispatchers.Main) {
+            _uiEvents.emit(event)
+        }
+    }
 }
 
-data class UIState(
-    val loggingDialogVisible: Boolean = false,
+data class User(
+    val name: String? = null,
+    val email: String? = null,
+    val photoUrl: Uri? = null,
+    val uid: String,
 )
-
-
-class Actions(private val uiState: MutableStateFlow<UIState>) {
-
-    val login = Login()
-
-    inner class Login{
-        fun openDialog() {
-            update {
-                it.copy(loggingDialogVisible = true)
-            }
-        }
-
-        fun dismissDialog() {
-            update {
-                it.copy(loggingDialogVisible = false)
-            }
-        }
-    }
-
-    private fun update(block: (UIState) -> UIState) {
-        uiState.update(block)
-    }
-}
