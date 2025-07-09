@@ -13,17 +13,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import io.github.hanihashemi.tomaten.Actions
 import io.github.hanihashemi.tomaten.Button
 import io.github.hanihashemi.tomaten.ButtonStyles
-import io.github.hanihashemi.tomaten.UIState
 import io.github.hanihashemi.tomaten.theme.Dimens
 import io.github.hanihashemi.tomaten.theme.TomatenTheme
 import io.github.hanihashemi.tomaten.theme.Typography
-import kotlinx.coroutines.flow.MutableStateFlow
+import io.github.hanihashemi.tomaten.ui.actions.Actions
+import io.github.hanihashemi.tomaten.ui.actions.previewActions
+import io.github.hanihashemi.tomaten.ui.states.UIState
 
 @Composable
-fun TopBar(actions: Actions) {
+fun TopBar(actions: Actions, uiState: UIState) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -37,11 +37,13 @@ fun TopBar(actions: Actions) {
             style = Typography.titleLarge,
         )
         Button(
-            text = "Login",
+            text = uiState.login.userDisplayName ?: "Login",
             style = ButtonStyles.Secondary,
             modifier = Modifier.offset(x = Dimens.PaddingNormal)
         ) {
-            actions.login.openDialog()
+            if (uiState.login.isLoggedIn) return@Button
+
+            actions.login.displayDialog(true)
         }
     }
 }
@@ -50,6 +52,6 @@ fun TopBar(actions: Actions) {
 @Composable
 private fun TopBarPreview() {
     TomatenTheme {
-        TopBar(actions = Actions(MutableStateFlow(UIState())))
+        TopBar(actions = previewActions, uiState = UIState())
     }
 }
