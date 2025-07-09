@@ -64,7 +64,7 @@ fun MainScreen(
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        topBar = { TopBar(actions) },
+        topBar = { TopBar(actions, uiState) },
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -161,7 +161,6 @@ fun TomatoCharacterChatGptV6(
     val density = LocalDensity.current
     val configuration = LocalConfiguration.current
     val screenHeightPx = with(density) { configuration.screenHeightDp.dp.toPx() }
-    val eyesYPositionPx = with(density) { 148.dp.toPx() } // Y of eyes in your drawing
 
     LaunchedEffect(isZoomed) {
         if (isZoomed) {
