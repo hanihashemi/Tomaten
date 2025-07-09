@@ -82,7 +82,7 @@ private fun LoginButtons(actions: Actions, uiState: UIState) {
             horizontalArrangement = Arrangement.Center
         ) {
             Image(
-                painter = painterResource(id = R.drawable.android_neutral_rd_na),
+                painter = painterResource(id = R.drawable.ic_google_logo),
                 contentDescription = "Google logo",
                 modifier = Modifier.size(24.dp)
             )
