@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Tomaten</string>
+    <string name="default_web_client_id" translatable="false">271002629131-nqa6dhkcbd2p6t64j15iamq4jvvn88l1.apps.googleusercontent.com</string>
+
 </resources>
