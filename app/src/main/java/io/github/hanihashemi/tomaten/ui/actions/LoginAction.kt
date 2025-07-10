@@ -1,5 +1,6 @@
 package io.github.hanihashemi.tomaten.ui.actions
 
+import com.google.firebase.auth.FirebaseAuth
 import io.github.hanihashemi.tomaten.MainViewModel
 import io.github.hanihashemi.tomaten.User
 import io.github.hanihashemi.tomaten.ui.events.UiEvents
@@ -51,6 +52,17 @@ class LoginAction(private val viewModel: MainViewModel) {
                     isDialogVisible = false,
                     isLoading = false,
                     errorMessage = null
+                )
+            )
+        }
+    }
+
+    fun logout() {
+        FirebaseAuth.getInstance().signOut()
+        viewModel.updateState {
+            it.copy(
+                login = it.login.copy(
+                    user = null,
                 )
             )
         }
