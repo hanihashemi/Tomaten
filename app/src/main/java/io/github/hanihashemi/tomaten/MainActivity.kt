@@ -96,7 +96,7 @@ class MainActivity : ComponentActivity() {
                                 User(
                                     name = user.displayName,
                                     email = user.email,
-                                    photoUrl = user.photoUrl,
+                                    photoUrl = user.photoUrl.toString(),
                                     uid = user.uid,
                                 )
                             )

@@ -3,6 +3,7 @@ package io.github.hanihashemi.tomaten
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.FirebaseAuth
 import io.github.hanihashemi.tomaten.extensions.launchSafely
 import io.github.hanihashemi.tomaten.ui.actions.Actions
 import io.github.hanihashemi.tomaten.ui.events.UiEvents
@@ -22,6 +23,24 @@ open class MainViewModel : ViewModel() {
     val uiState: StateFlow<UIState> = _uiState
     val actions: Actions by lazy { Actions(this) }
 
+    init {
+        fetchCurrentUser()
+    }
+
+    private fun fetchCurrentUser() {
+        FirebaseAuth.getInstance().currentUser?.let { user ->
+            val savedUser = User(
+                name = user.displayName,
+                email = user.email,
+                photoUrl = user.photoUrl.toString().orEmpty(),
+                uid = user.uid
+            )
+            updateState {
+                it.copy(login = it.login.copy(user = savedUser))
+            }
+        }
+    }
+
     fun updateState(transform: (UIState) -> UIState) {
         _uiState.update(transform)
     }
@@ -36,6 +55,6 @@ open class MainViewModel : ViewModel() {
 data class User(
     val name: String? = null,
     val email: String? = null,
-    val photoUrl: Uri? = null,
+    val photoUrl: String? = null,
     val uid: String,
 )
