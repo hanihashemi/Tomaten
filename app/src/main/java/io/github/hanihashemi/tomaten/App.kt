@@ -14,17 +14,23 @@ class App : Application() {
     override fun onCreate() {
         super.onCreate()
         FirebaseApp.initializeApp(this)
+        setupTimber()
+        setupKoin()
+    }
 
-        if (BuildConfig.DEBUG) {
-            Timber.plant(Timber.DebugTree())
-        } else {
-            Timber.plant(CrashReportingTree())
-        }
-
+    private fun setupKoin() {
         startKoin {
             androidLogger()
             androidContext(this@App)
             modules(appModule)
+        }
+    }
+
+    private fun setupTimber() {
+        if (BuildConfig.DEBUG) {
+            Timber.plant(Timber.DebugTree())
+        } else {
+            Timber.plant(CrashReportingTree())
         }
     }
 
