@@ -52,6 +52,10 @@ dependencies {
     implementation(libs.koin.android)
     implementation(libs.koin.androidx.compose)
 
+    // Ktor
+    implementation(libs.ktor.client.core)
+    implementation(libs.ktor.client.okhttp)
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.timber)
     implementation(libs.androidx.lifecycle.runtime.ktx)
