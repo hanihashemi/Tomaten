@@ -35,7 +35,6 @@ import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
@@ -78,7 +77,7 @@ fun MainScreen(
                 Button("Start", modifier = Modifier.widthIn(180.dp)) { }
                 Button("Focus", style = ButtonStyles.Secondary) { }
 
-                TomatoCharacterChatGptV6(
+                TomatoCharacter(
                     modifier = Modifier,
                     emote = emote,
                     isZoomed = isZoomed,
@@ -118,25 +117,17 @@ sealed class TomatoCharacterEmotes(
     data object Surprise : TomatoCharacterEmotes(mouthTargetValue = 1.5f)
 }
 
-
 @Composable
-fun TomatoCharacterChatGptV6(
+fun TomatoCharacter(
     modifier: Modifier, emote: TomatoCharacterEmotes, isZoomed: Boolean
 ) {
-    // Initial sound effects
     val context = LocalContext.current
-    val smilePlayer = remember {
-        MediaPlayer.create(context, R.raw.smile)
-    }
-    val neutralPlayer = remember {
-        MediaPlayer.create(context, R.raw.neutral)
-    }
-    val sadPlayer = remember {
-        MediaPlayer.create(context, R.raw.sad)
-    }
-    val surprisePlayer = remember {
-        MediaPlayer.create(context, R.raw.surprised)
-    }
+    val state = rememberTomatoCharacterState()
+
+    val smilePlayer = remember { MediaPlayer.create(context, R.raw.smile) }
+    val neutralPlayer = remember { MediaPlayer.create(context, R.raw.neutral) }
+    val sadPlayer = remember { MediaPlayer.create(context, R.raw.sad) }
+    val surprisePlayer = remember { MediaPlayer.create(context, R.raw.surprised) }
 
     DisposableEffect(Unit) {
         onDispose {
@@ -148,138 +139,99 @@ fun TomatoCharacterChatGptV6(
     }
 
     var previousEmote by remember { mutableStateOf<TomatoCharacterEmotes?>(null) }
-    val progress = remember { Animatable(0f) }
-    val surpriseOffsetX = remember { Animatable(0f) }
-    val surpriseOffsetY = remember { Animatable(0f) }
-    val scale = remember { Animatable(1f) }
-    val surpriseMouthScale = remember { Animatable(0.6f) }
-    val surpriseMouthAlpha = remember { Animatable(0f) }
-    val eyeYOffset = remember { Animatable(0f) }
-    val eyeScale = remember { Animatable(1f) }
-    val zoomScale = remember { Animatable(1f) }
-    val zoomOffsetY = remember { Animatable(0f) }
     val density = LocalDensity.current
     val configuration = LocalConfiguration.current
     val screenHeightPx = with(density) { configuration.screenHeightDp.dp.toPx() }
 
     LaunchedEffect(isZoomed) {
         if (isZoomed) {
-            // Desired scale
-            launch {
-                zoomScale.animateTo(2.5f, tween(800))
-            }
-            // Desired offset: push so only eyes stay visible
-            val desiredOffset = screenHeightPx / 5f //- eyesYPositionPx
-            launch {
-                zoomOffsetY.animateTo(desiredOffset, tween(800))
-            }
+            launch { state.zoomScale.animateTo(2.5f, tween(800)) }
+            val desiredOffset = screenHeightPx / 5f
+            launch { state.zoomOffsetY.animateTo(desiredOffset, tween(800)) }
         } else {
-            launch {
-                zoomScale.animateTo(1f, tween(800))
-            }
-            launch {
-                zoomOffsetY.animateTo(0f, tween(800))
-            }
+            launch { state.zoomScale.animateTo(1f, tween(800)) }
+            launch { state.zoomOffsetY.animateTo(0f, tween(800)) }
         }
     }
 
     LaunchedEffect(emote) {
-        val animationDelay = if (previousEmote is TomatoCharacterEmotes.Surprise) 0 else 800
+        val delay = if (previousEmote is TomatoCharacterEmotes.Surprise) 0 else 800
 
-
-        // Reset eyes animation
         launch {
-            eyeYOffset.animateTo(0f, tween(100))
-            eyeScale.animateTo(1f, tween(200))
+            state.eyeYOffset.animateTo(0f, tween(100))
+            state.eyeScale.animateTo(1f, tween(200))
         }
+
         launch {
             while (true) {
-                scale.animateTo(
-                    targetValue = 1.05f, animationSpec = tween(durationMillis = 1800)
-                )
-                scale.animateTo(targetValue = 1f, animationSpec = tween(durationMillis = 1800))
+                state.scale.animateTo(1.05f, tween(1800))
+                state.scale.animateTo(1f, tween(1800))
             }
         }
 
         when (emote) {
             is TomatoCharacterEmotes.Smile -> {
                 smilePlayer.start()
-                progress.animateTo(emote.mouthTargetValue, animationSpec = tween(animationDelay))
+                state.progress.animateTo(emote.mouthTargetValue, tween(delay))
             }
 
             is TomatoCharacterEmotes.Neutral -> {
                 neutralPlayer.start()
-                progress.animateTo(
-                    emote.mouthTargetValue,
-                    animationSpec = tween(animationDelay)
-                )
+                state.progress.animateTo(emote.mouthTargetValue, tween(delay))
             }
 
             is TomatoCharacterEmotes.Sad -> {
                 sadPlayer.start()
-                launch {
-                    eyeScale.animateTo(0.75f, tween(durationMillis = 200))
-                }
-                launch {
-                    eyeYOffset.animateTo(6f, tween(durationMillis = 400))
-                }
-                progress.animateTo(
-                    emote.mouthTargetValue,
-                    animationSpec = tween(animationDelay)
-                )
+                launch { state.eyeScale.animateTo(0.75f, tween(200)) }
+                launch { state.eyeYOffset.animateTo(6f, tween(400)) }
+                state.progress.animateTo(emote.mouthTargetValue, tween(delay))
             }
 
             is TomatoCharacterEmotes.Surprise -> {
                 surprisePlayer.start()
+                launch { state.eyeScale.animateTo(1.25f, tween(200)) }
                 launch {
-                    eyeScale.animateTo(1.25f, tween(durationMillis = 200))
-                }
-                launch {
-                    surpriseMouthScale.snapTo(0.6f)
-                    surpriseMouthScale.animateTo(
-                        targetValue = 1f,
-                        animationSpec = tween(durationMillis = 400, easing = FastOutSlowInEasing)
+                    state.surpriseMouthScale.snapTo(0.6f)
+                    state.surpriseMouthScale.animateTo(
+                        1f,
+                        tween(400, delayMillis = 0, FastOutSlowInEasing)
                     )
                 }
                 launch {
-                    surpriseMouthAlpha.snapTo(0f)
-                    surpriseMouthAlpha.animateTo(
-                        targetValue = 1f,
-                        animationSpec = tween(durationMillis = 400, easing = FastOutSlowInEasing)
+                    state.surpriseMouthAlpha.snapTo(0f)
+                    state.surpriseMouthAlpha.animateTo(
+                        1f,
+                        tween(400, delayMillis = 0, FastOutSlowInEasing)
                     )
                 }
                 launch {
-                    // First jump up
-                    surpriseOffsetY.snapTo(0f)
-                    surpriseOffsetY.animateTo(-16f, tween(100, easing = FastOutSlowInEasing))
-                    // Fall down
-                    surpriseOffsetY.animateTo(8f, tween(100))
-                    // Smaller bounce up
-                    surpriseOffsetY.animateTo(-6f, tween(80))
-                    // Fall again
-                    surpriseOffsetY.animateTo(4f, tween(80))
-                    // Settle
-                    surpriseOffsetY.animateTo(0f, tween(60))
+                    state.surpriseOffsetY.snapTo(0f)
+                    state.surpriseOffsetY.animateTo(
+                        -16f,
+                        tween(100, delayMillis = 0, FastOutSlowInEasing)
+                    )
+                    state.surpriseOffsetY.animateTo(8f, tween(100))
+                    state.surpriseOffsetY.animateTo(-6f, tween(80))
+                    state.surpriseOffsetY.animateTo(4f, tween(80))
+                    state.surpriseOffsetY.animateTo(0f, tween(60))
                 }
                 launch {
-                    surpriseOffsetX.snapTo(2f)
-                    surpriseOffsetX.animateTo(
-                        targetValue = 0f,
-                        animationSpec = tween(durationMillis = 400, easing = FastOutSlowInEasing)
+                    state.surpriseOffsetX.snapTo(2f)
+                    state.surpriseOffsetX.animateTo(
+                        0f,
+                        tween(400, delayMillis = 0, FastOutSlowInEasing)
                     )
                 }
-                progress.animateTo(
-                    emote.mouthTargetValue,
-                    animationSpec = tween(0)
-                )
+                state.progress.animateTo(emote.mouthTargetValue, tween(0))
             }
         }
+
         previousEmote = emote
     }
 
-    val totalScale = scale.value * zoomScale.value
-    val totalOffsetX = surpriseOffsetX.value
-    val totalOffsetY = surpriseOffsetY.value + zoomOffsetY.value
+    val totalScale = state.scale.value * state.zoomScale.value
+    val totalOffsetX = state.surpriseOffsetX.value
+    val totalOffsetY = state.surpriseOffsetY.value + state.zoomOffsetY.value
 
     Canvas(
         modifier = modifier.size(218.dp, 220.dp)
@@ -530,7 +482,7 @@ fun TomatoCharacterChatGptV6(
             val leafCenter = Offset(dpToPx(110.dp), dpToPx(60.dp))
 
             withTransform({
-                scale(scale.value, pivot = leafCenter)
+                scale(state.scale.value, pivot = leafCenter)
             }) {
                 drawPath(path = leafPath, color = Color.Black, style = Stroke(width = dpToPx(6.dp)))
                 drawPath(path = leafPath, color = Color(0xFF5AAA82))
@@ -539,23 +491,23 @@ fun TomatoCharacterChatGptV6(
             // Eyes
             val baseEyeRadius = dpToPx(11.dp)
             val leftEyeCenter =
-                Offset(dpToPx(73.dp), dpToPx(148.29.dp) + eyeYOffset.value)
+                Offset(dpToPx(73.dp), dpToPx(148.29.dp) + state.eyeYOffset.value)
             val rightEyeCenter =
-                Offset(dpToPx(145.dp), dpToPx(148.29.dp) + eyeYOffset.value)
+                Offset(dpToPx(145.dp), dpToPx(148.29.dp) + state.eyeYOffset.value)
 
             drawCircle(
                 color = Color(0xFF191713),
-                radius = baseEyeRadius * eyeScale.value,
+                radius = baseEyeRadius * state.eyeScale.value,
                 center = leftEyeCenter
             )
             drawCircle(
                 color = Color(0xFF191713),
-                radius = baseEyeRadius * eyeScale.value,
+                radius = baseEyeRadius * state.eyeScale.value,
                 center = rightEyeCenter
             )
 
             // Morph between smile, neutral, and sad mouths
-            val p = progress.value
+            val p = state.progress.value
 
             if (p > 1f) {
                 // Mouth surprised
@@ -608,11 +560,14 @@ fun TomatoCharacterChatGptV6(
                 }
 
                 withTransform({
-                    scale(surpriseMouthScale.value, pivot = Offset(dpToPx(116.dp), dpToPx(185.dp)))
+                    scale(
+                        state.surpriseMouthScale.value,
+                        pivot = Offset(dpToPx(116.dp), dpToPx(185.dp))
+                    )
                 }) {
                     drawPath(
                         path = lipPath,
-                        color = Color(0xFF191713).copy(alpha = surpriseMouthAlpha.value)
+                        color = Color(0xFF191713).copy(alpha = state.surpriseMouthAlpha.value)
                     )
                 }
             } else {
@@ -665,22 +620,20 @@ fun TomatoCharacterChatGptV6(
     }
 }
 
-
-@Composable
-private fun MainScreenPreview() {
-    TomatenTheme {
-        MainScreen()
-    }
+class TomatoCharacterState {
+    val progress = Animatable(0f)
+    val eyeYOffset = Animatable(0f)
+    val eyeScale = Animatable(1f)
+    val scale = Animatable(1f)
+    val zoomScale = Animatable(1f)
+    val zoomOffsetY = Animatable(0f)
+    val surpriseOffsetX = Animatable(0f)
+    val surpriseOffsetY = Animatable(0f)
+    val surpriseMouthScale = Animatable(0.6f)
+    val surpriseMouthAlpha = Animatable(0f)
 }
 
-@Preview(device = "id:small_phone")
 @Composable
-private fun SmallPreview() = MainScreenPreview()
-
-@Preview(device = "id:medium_phone")
-@Composable
-private fun MediumPreview() = MainScreenPreview()
-
-@Preview(device = "id:pixel_9_pro_xl")
-@Composable
-private fun PixelProPreview() = MainScreenPreview()
+fun rememberTomatoCharacterState(): TomatoCharacterState {
+    return remember { TomatoCharacterState() }
+}
