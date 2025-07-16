@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
  * Here I have send the design and asked ChatGpt to implement it.
  * As you see the result isn't good :D.
  */
+@Suppress("DEPRECATION")
 @Composable
 fun TomatoCharacterChatGptV1() {
     Canvas(modifier = Modifier.fillMaxSize()) {

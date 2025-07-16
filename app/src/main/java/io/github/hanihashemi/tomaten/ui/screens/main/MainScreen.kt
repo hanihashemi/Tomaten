@@ -31,7 +31,6 @@ import org.koin.androidx.compose.koinViewModel
 fun MainScreen(
 
 ) {
-    val context = LocalContext.current
     val viewModel: MainViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsState()
     val actions = viewModel.actions
