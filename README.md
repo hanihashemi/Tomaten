@@ -18,14 +18,23 @@ It helps users stay focused and productive by breaking work into intervals, usin
 - ~~[X] Ask chatGpt to draw Tomaten with drawPath~~
 - ~~[X] Create different mouth with emotions :)~~
 - ~~[X] Create different composable functions for different emotions~~
-- [ ] Login/Register with Firebase
+- ~~[X] Login/Register with Firebase~~
 - [ ] Add a timer countdown
-- [ ] Store/Fetch from realtime database.
-- [ ] 
+  - [ ] countdown
+  - [ ] Start/Stop/Finish
+  - [ ] Record in database
+- [ ] Store/Fetch from database. (no need for realtime database)
+- [ ] Change design to black.
+- [ ] Statistic on main page.
+- [ ] Statistic page.
+- [ ] Setting
+- [ ] Add tags dialog.
+- 
 
 ---
 
 ### 📦 Future Ideas
-- [ ] ...
+- [ ] Play white noise
+- 
 
 ---
