@@ -79,19 +79,20 @@ fun Tomi(
         }
     }
 
+    // Breathing
+    LaunchedEffect(Unit) {
+        while (true) {
+            state.scale.animateTo(1.05f, tween(1800))
+            state.scale.animateTo(1f, tween(1800))
+        }
+    }
+
     LaunchedEffect(emote) {
         val delay = if (previousEmote is TomiEmotes.Surprise) 0 else 800
 
         launch {
             state.eyeYOffset.animateTo(0f, tween(100))
             state.eyeScale.animateTo(1f, tween(200))
-        }
-
-        launch {
-            while (true) {
-                state.scale.animateTo(1.05f, tween(1800))
-                state.scale.animateTo(1f, tween(1800))
-            }
         }
 
         when (emote) {
