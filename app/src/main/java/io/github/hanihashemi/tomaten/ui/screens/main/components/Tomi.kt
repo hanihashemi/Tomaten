@@ -86,8 +86,8 @@ fun Tomi(
     // Breathing
     LaunchedEffect(Unit) {
         while (true) {
-            state.scale.animateTo(1.05f, tween(1800))
-            state.scale.animateTo(1f, tween(1800))
+            state.breathingScale.animateTo(1.05f, tween(1800))
+            state.breathingScale.animateTo(1f, tween(1800))
         }
     }
 
@@ -155,7 +155,7 @@ fun Tomi(
         previousEmote = emote
     }
 
-    val totalScale = state.scale.value * state.zoomScale.value
+    val totalScale = state.scale.value * state.breathingScale.value * state.zoomScale.value
     val totalOffsetX = state.surpriseOffsetX.value
     val totalOffsetY = state.surpriseOffsetY.value + state.zoomOffsetY.value
 
@@ -594,4 +594,5 @@ class TomiStates {
     val surpriseOffsetY = Animatable(0f)
     val surpriseMouthScale = Animatable(0.6f)
     val surpriseMouthAlpha = Animatable(0f)
+    val breathingScale = Animatable(1f)
 }
