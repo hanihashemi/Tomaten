@@ -5,6 +5,7 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -12,6 +13,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -23,6 +25,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.drawscope.withTransform
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -39,6 +42,7 @@ fun Tomi(
 ) {
     val context = LocalContext.current
     val state = rememberTomiState()
+    val coroutineScope = rememberCoroutineScope()
 
     val smilePlayer = remember { MediaPlayer.create(context, R.raw.smile) }
     val neutralPlayer = remember { MediaPlayer.create(context, R.raw.neutral) }
@@ -119,22 +123,19 @@ fun Tomi(
                 launch {
                     state.surpriseMouthScale.snapTo(0.6f)
                     state.surpriseMouthScale.animateTo(
-                        1f,
-                        tween(400, delayMillis = 0, FastOutSlowInEasing)
+                        1f, tween(400, delayMillis = 0, FastOutSlowInEasing)
                     )
                 }
                 launch {
                     state.surpriseMouthAlpha.snapTo(0f)
                     state.surpriseMouthAlpha.animateTo(
-                        1f,
-                        tween(400, delayMillis = 0, FastOutSlowInEasing)
+                        1f, tween(400, delayMillis = 0, FastOutSlowInEasing)
                     )
                 }
                 launch {
                     state.surpriseOffsetY.snapTo(0f)
                     state.surpriseOffsetY.animateTo(
-                        -16f,
-                        tween(100, delayMillis = 0, FastOutSlowInEasing)
+                        -16f, tween(100, delayMillis = 0, FastOutSlowInEasing)
                     )
                     state.surpriseOffsetY.animateTo(8f, tween(100))
                     state.surpriseOffsetY.animateTo(-6f, tween(80))
@@ -144,8 +145,7 @@ fun Tomi(
                 launch {
                     state.surpriseOffsetX.snapTo(2f)
                     state.surpriseOffsetX.animateTo(
-                        0f,
-                        tween(400, delayMillis = 0, FastOutSlowInEasing)
+                        0f, tween(400, delayMillis = 0, FastOutSlowInEasing)
                     )
                 }
                 state.progress.animateTo(emote.mouthTargetValue, tween(0))
@@ -160,9 +160,35 @@ fun Tomi(
     val totalOffsetY = state.surpriseOffsetY.value + state.zoomOffsetY.value
 
     Canvas(
-        modifier = modifier.size(218.dp, 220.dp)
-    ) {
+        modifier = modifier
+            .size(218.dp, 220.dp)
+            .pointerInput(Unit) {
+                detectTapGestures(
+                    onPress = {
+                        coroutineScope.launch {
+                            // Press down animation
+                            state.scale.animateTo(0.98f, tween(100))
+                        }
 
+                        try {
+                            // Wait for release
+                            awaitRelease()
+
+                            // Release bounce animation
+                            coroutineScope.launch {
+                                state.scale.animateTo(1.08f, tween(100))
+                                state.scale.animateTo(0.98f, tween(100))
+                                state.scale.animateTo(1f, tween(80))
+                            }
+                        } catch (e: Exception) {
+                            // Handle cancelled press (e.g. dragged out of bounds)
+                            coroutineScope.launch {
+                                state.scale.animateTo(1f, tween(100))
+                            }
+                        }
+                    }
+                )
+            }) {
         withTransform({
             translate(left = totalOffsetX, top = totalOffsetY)
             scale(scale = totalScale, pivot = Offset(size.width / 2, size.height / 2))
@@ -416,10 +442,8 @@ fun Tomi(
 
             // Eyes
             val baseEyeRadius = dpToPx(11.dp)
-            val leftEyeCenter =
-                Offset(dpToPx(73.dp), dpToPx(148.29.dp) + state.eyeYOffset.value)
-            val rightEyeCenter =
-                Offset(dpToPx(145.dp), dpToPx(148.29.dp) + state.eyeYOffset.value)
+            val leftEyeCenter = Offset(dpToPx(73.dp), dpToPx(148.29.dp) + state.eyeYOffset.value)
+            val rightEyeCenter = Offset(dpToPx(145.dp), dpToPx(148.29.dp) + state.eyeYOffset.value)
 
             drawCircle(
                 color = Color(0xFF191713),
@@ -523,12 +547,10 @@ fun Tomi(
 
                 // Start and end points for the mouth path (vertical lerp included)
                 val start = Offset(
-                    97.dp.toPx() + xMOffset,
-                    lerp(185.dp.toPx(), 190.dp.toPx(), p) + yMOffset
+                    97.dp.toPx() + xMOffset, lerp(185.dp.toPx(), 190.dp.toPx(), p) + yMOffset
                 )
                 val end = Offset(
-                    134.dp.toPx() + xMOffset,
-                    lerp(185.dp.toPx(), 190.dp.toPx(), p) + yMOffset
+                    134.dp.toPx() + xMOffset, lerp(185.dp.toPx(), 190.dp.toPx(), p) + yMOffset
                 )
 
                 val mouthPath = Path().apply {
