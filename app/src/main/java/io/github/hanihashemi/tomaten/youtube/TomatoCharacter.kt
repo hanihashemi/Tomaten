@@ -99,7 +99,7 @@ fun TomatoCharacterChatGptV1() {
  */
 @Composable
 fun TomatoCharacterChatGptV2() {
-    Canvas(modifier = Modifier.fillMaxSize()) {
+    Canvas(modifier = Modifier.size(100.dp, 100.dp)) {
         // Red tomato body
         val tomatoPath = Path().apply {
             moveTo(108.5f, 43f)
@@ -188,13 +188,11 @@ fun TomatoCharacterChatGptV2() {
 /**
  * Tomato Character Version 3
  *
- * Here I have send the vector code which I got from AndroidStudio and asked ChatGpt to implement it.
- * Result is acceptable and now it is not using drawPath where we can use drawCircle or drawOval which make it
- * easier for us to add animation to it later.
+ * Asked chat-gpt to use drawCircle, drawOval instead of drawPath to make it easier to add animation.
  */
 @Composable
 fun TomatoCharacterChatGptV3() {
-    Canvas(modifier = Modifier.fillMaxSize()) {
+    Canvas(modifier = Modifier.size(100.dp, 100.dp)) {
 
         // Red tomato body
         drawOval(
@@ -609,24 +607,24 @@ fun TomatoCharacterChatGptV4(modifier: Modifier) {
 
 @Preview
 @Composable
-private fun TomatoCharacterChatGptV1Preview() {
+private fun TomatoPreview_V1() {
     TomatoCharacterChatGptV1()
 }
 
 @Preview
 @Composable
-private fun TomatoCharacterChatGptV2Preview() {
+private fun TomatoPreview_V2() {
     TomatoCharacterChatGptV2()
 }
 
 @Preview
 @Composable
-private fun TomatoCharacterChatGptV3Preview() {
+private fun TomatoPreview_V3() {
     TomatoCharacterChatGptV3()
 }
 
 @Preview
 @Composable
-private fun TomatoCharacterChatGptV4Preview() {
+private fun TomatoPreview_V4() {
     TomatoCharacterChatGptV4(modifier = Modifier)
 }
