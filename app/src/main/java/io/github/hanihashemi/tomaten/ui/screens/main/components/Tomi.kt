@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
 import io.github.hanihashemi.tomaten.R
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
@@ -37,7 +38,7 @@ fun Tomi(
     modifier: Modifier, emote: TomiEmotes, isZoomed: Boolean
 ) {
     val context = LocalContext.current
-    val state = rememberTomatoCharacterState()
+    val state = rememberTomiState()
 
     val smilePlayer = remember { MediaPlayer.create(context, R.raw.smile) }
     val neutralPlayer = remember { MediaPlayer.create(context, R.raw.neutral) }
@@ -66,6 +67,15 @@ fun Tomi(
         } else {
             launch { state.zoomScale.animateTo(1f, tween(800)) }
             launch { state.zoomOffsetY.animateTo(0f, tween(800)) }
+        }
+    }
+
+    // Blinking animation
+    LaunchedEffect(Unit) {
+        while (true) {
+            delay((3000L..6000L).random())
+            state.eyeScale.animateTo(0.2f, tween(100))
+            state.eyeScale.animateTo(1f, tween(100))
         }
     }
 
@@ -536,7 +546,7 @@ fun Tomi(
 }
 
 @Composable
-fun rememberTomatoCharacterState(): TomiStates {
+fun rememberTomiState(): TomiStates {
     return remember { TomiStates() }
 }
 
