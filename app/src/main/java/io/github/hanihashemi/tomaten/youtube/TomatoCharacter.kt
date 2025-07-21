@@ -112,7 +112,7 @@ fun TomatoCharacterChatGptV2() {
         }
         drawPath(
             path = tomatoPath,
-            color = Color(0xFFFF4B60),
+            color = Color(0xFF000000),
             style = Stroke(width = 4f)
         )
         drawPath(
