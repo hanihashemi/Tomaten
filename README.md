@@ -19,6 +19,7 @@ It helps users stay focused and productive by breaking work into intervals, usin
 - ~~[X] Create different mouth with emotions :)~~
 - ~~[X] Create different composable functions for different emotions~~
 - ~~[X] Login/Register with Firebase~~
+- ~~[X] Add timer picker~~
 - [ ] Add a timer countdown
   - [ ] countdown
   - [ ] Start/Stop/Finish
