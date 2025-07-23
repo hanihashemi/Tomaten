@@ -33,6 +33,7 @@ import io.github.hanihashemi.tomaten.ui.actions.previewActions
 import io.github.hanihashemi.tomaten.ui.states.LoginUiState
 import io.github.hanihashemi.tomaten.ui.states.UIState
 
+@Suppress("FunctionName")
 @Composable
 fun LoginDialog(
     uiState: UIState,
@@ -68,6 +69,7 @@ fun LoginDialog(
     )
 }
 
+@Suppress("FunctionName")
 @Composable
 private fun LoginButtons(
     actions: Actions,
@@ -101,6 +103,7 @@ private fun LoginButtons(
     ) { actions.login.displayDialog(false) }
 }
 
+@Suppress("FunctionName")
 @Composable
 private fun ErrorMessage(uiState: UIState) {
     if (uiState.login.errorMessage == null) return
@@ -125,6 +128,7 @@ private fun ErrorMessage(uiState: UIState) {
     Spacer(modifier = Modifier.height(Dimens.PaddingXSmall))
 }
 
+@Suppress("FunctionName")
 @Preview
 @Composable
 private fun LoginDialogPreview() {
@@ -139,6 +143,7 @@ private fun LoginDialogPreview() {
     }
 }
 
+@Suppress("FunctionName")
 @Preview
 @Composable
 private fun LoginDialogLoadingPreview() {
@@ -153,6 +158,7 @@ private fun LoginDialogLoadingPreview() {
     }
 }
 
+@Suppress("FunctionName")
 @Preview
 @Composable
 private fun LoginDialogErrorPreview() {
@@ -160,7 +166,10 @@ private fun LoginDialogErrorPreview() {
         LoginDialog(
             uiState =
                 UIState(
-                    login = LoginUiState(isDialogVisible = true, errorMessage = "Something went wrong."),
+                    login = LoginUiState(
+                        isDialogVisible = true,
+                        errorMessage = "Something went wrong."
+                    ),
                 ),
             actions = previewActions,
         )

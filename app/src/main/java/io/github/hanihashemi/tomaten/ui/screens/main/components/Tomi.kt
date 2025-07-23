@@ -36,6 +36,7 @@ import io.github.hanihashemi.tomaten.R
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+@Suppress("FunctionName")
 @Composable
 fun Tomi(
     modifier: Modifier,

@@ -37,6 +37,7 @@ import io.github.hanihashemi.tomaten.ui.screens.main.components.TopBar
 import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
 
+@Suppress("FunctionName")
 @Composable
 fun MainScreen() {
     val viewModel: MainViewModel = koinViewModel()

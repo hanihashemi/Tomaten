@@ -14,6 +14,7 @@ private val LightColorScheme =
         onSurfaceVariant = OnSurfaceVariantColor,
     )
 
+@Suppress("FunctionName")
 @Composable
 fun TomatenTheme(content: @Composable () -> Unit) {
 //    val view = LocalView.current
