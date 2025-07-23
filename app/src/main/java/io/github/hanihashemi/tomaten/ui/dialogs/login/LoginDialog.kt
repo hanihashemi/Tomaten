@@ -134,10 +134,7 @@ private fun ErrorMessage(uiState: UIState) {
 private fun LoginDialogPreview() {
     TomatenTheme {
         LoginDialog(
-            uiState =
-                UIState(
-                    login = LoginUiState(isDialogVisible = true),
-                ),
+            uiState = UIState(LoginUiState(isDialogVisible = true)),
             actions = previewActions,
         )
     }
@@ -166,10 +163,11 @@ private fun LoginDialogErrorPreview() {
         LoginDialog(
             uiState =
                 UIState(
-                    login = LoginUiState(
-                        isDialogVisible = true,
-                        errorMessage = "Something went wrong."
-                    ),
+                    login =
+                        LoginUiState(
+                            isDialogVisible = true,
+                            errorMessage = "Something went wrong.",
+                        ),
                 ),
             actions = previewActions,
         )
