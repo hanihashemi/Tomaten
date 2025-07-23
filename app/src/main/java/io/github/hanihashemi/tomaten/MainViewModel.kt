@@ -1,6 +1,5 @@
 package io.github.hanihashemi.tomaten
 
-import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
@@ -16,7 +15,6 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.update
 
 open class MainViewModel : ViewModel() {
-
     private val _uiEvents = MutableSharedFlow<UiEvents>(replay = 0)
     val uiEvents = _uiEvents.asSharedFlow()
     private val _uiState = MutableStateFlow(UIState())
@@ -29,12 +27,13 @@ open class MainViewModel : ViewModel() {
 
     private fun fetchCurrentUser() {
         FirebaseAuth.getInstance().currentUser?.let { user ->
-            val savedUser = User(
-                name = user.displayName,
-                email = user.email,
-                photoUrl = user.photoUrl.toString().orEmpty(),
-                uid = user.uid
-            )
+            val savedUser =
+                User(
+                    name = user.displayName,
+                    email = user.email,
+                    photoUrl = user.photoUrl.toString().orEmpty(),
+                    uid = user.uid,
+                )
             updateState {
                 it.copy(login = it.login.copy(user = savedUser))
             }

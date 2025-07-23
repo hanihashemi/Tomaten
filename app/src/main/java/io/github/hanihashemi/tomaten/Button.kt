@@ -29,6 +29,7 @@ import io.github.hanihashemi.tomaten.theme.TomatenTheme
 import io.github.hanihashemi.tomaten.theme.Typography
 import io.github.hanihashemi.tomaten.util.VibrateUtil
 
+@Suppress("FunctionName")
 @Composable
 fun Button(
     text: String,
@@ -50,17 +51,19 @@ fun Button(
     }
 
     Box(
-        modifier = modifier
-            .clip(Shapes.large)
-            .border(style.border, CircleShape)
-            .background(color = style.backgroundColor)
-            .clickable(
-                interactionSource = interactionSource,
-                indication = ripple(
-                    color = style.rippleColor,
-                )
-            ) { onClick() }
-            .padding(Dimens.PaddingNormal),
+        modifier =
+            modifier
+                .clip(Shapes.large)
+                .border(style.border, CircleShape)
+                .background(color = style.backgroundColor)
+                .clickable(
+                    interactionSource = interactionSource,
+                    indication =
+                        ripple(
+                            color = style.rippleColor,
+                        ),
+                ) { onClick() }
+                .padding(Dimens.PaddingNormal),
         contentAlignment = Alignment.Center,
     ) {
         Text(
@@ -74,21 +77,24 @@ data class ButtonStyle(
     val backgroundColor: Color = Color.Transparent,
     val textStyle: TextStyle = Typography.bodyMedium,
     val rippleColor: Color = OnSurfaceColor,
-    val border: BorderStroke = BorderStroke(
-        width = 1.dp,
-        color = OnSurfaceColor,
-    ),
+    val border: BorderStroke =
+        BorderStroke(
+            width = 1.dp,
+            color = OnSurfaceColor,
+        ),
 )
 
 object ButtonStyles {
     val Primary = ButtonStyle()
 
-    val Secondary = ButtonStyle(
-        border = BorderStroke(0.dp, Color.Transparent),
-        rippleColor = Color.DarkGray
-    )
+    val Secondary =
+        ButtonStyle(
+            border = BorderStroke(0.dp, Color.Transparent),
+            rippleColor = Color.DarkGray,
+        )
 }
 
+@Suppress("FunctionName")
 @Preview(showBackground = true)
 @Composable
 private fun ButtonPrimaryPreview() {
@@ -97,6 +103,7 @@ private fun ButtonPrimaryPreview() {
     }
 }
 
+@Suppress("FunctionName")
 @Preview(showBackground = true)
 @Composable
 private fun ButtonSecondaryPreview() {

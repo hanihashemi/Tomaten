@@ -6,17 +6,17 @@ import io.github.hanihashemi.tomaten.User
 import io.github.hanihashemi.tomaten.ui.events.UiEvents
 
 class LoginAction(private val viewModel: MainViewModel) {
-
     fun displayDialog(visible: Boolean) {
         val isLoading = viewModel.uiState.value.login.isLoading
         if (isLoading) return
 
         viewModel.updateState {
             it.copy(
-                login = it.login.copy(
-                    isDialogVisible = visible,
-                    errorMessage = null
-                )
+                login =
+                    it.login.copy(
+                        isDialogVisible = visible,
+                        errorMessage = null,
+                    ),
             )
         }
     }
@@ -24,9 +24,10 @@ class LoginAction(private val viewModel: MainViewModel) {
     fun login() {
         viewModel.updateState {
             it.copy(
-                login = it.login.copy(
-                    isLoading = true
-                )
+                login =
+                    it.login.copy(
+                        isLoading = true,
+                    ),
             )
         }
 
@@ -36,10 +37,11 @@ class LoginAction(private val viewModel: MainViewModel) {
     fun setErrorMessage(errorMessage: String) {
         viewModel.updateState {
             it.copy(
-                login = it.login.copy(
-                    errorMessage = errorMessage,
-                    isLoading = false
-                )
+                login =
+                    it.login.copy(
+                        errorMessage = errorMessage,
+                        isLoading = false,
+                    ),
             )
         }
     }
@@ -47,12 +49,13 @@ class LoginAction(private val viewModel: MainViewModel) {
     fun setUser(user: User) {
         viewModel.updateState {
             it.copy(
-                login = it.login.copy(
-                    user = user,
-                    isDialogVisible = false,
-                    isLoading = false,
-                    errorMessage = null
-                )
+                login =
+                    it.login.copy(
+                        user = user,
+                        isDialogVisible = false,
+                        isLoading = false,
+                        errorMessage = null,
+                    ),
             )
         }
     }
@@ -61,9 +64,10 @@ class LoginAction(private val viewModel: MainViewModel) {
         FirebaseAuth.getInstance().signOut()
         viewModel.updateState {
             it.copy(
-                login = it.login.copy(
-                    user = null,
-                )
+                login =
+                    it.login.copy(
+                        user = null,
+                    ),
             )
         }
     }

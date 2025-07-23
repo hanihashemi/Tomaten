@@ -34,7 +34,10 @@ import io.github.hanihashemi.tomaten.ui.states.LoginUiState
 import io.github.hanihashemi.tomaten.ui.states.UIState
 
 @Composable
-fun LoginDialog(uiState: UIState, actions: Actions) {
+fun LoginDialog(
+    uiState: UIState,
+    actions: Actions,
+) {
     if (!uiState.login.isDialogVisible) return
 
     AlertDialog(
@@ -45,11 +48,10 @@ fun LoginDialog(uiState: UIState, actions: Actions) {
         text = {
             Column(
                 verticalArrangement = Arrangement.spacedBy(Dimens.PaddingXXXSmall),
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text("Please sign in with your Google account to sync your Pomodoro data.")
                 Spacer(modifier = Modifier.height(Dimens.PaddingXLarge))
-
 
                 when {
                     uiState.login.isLoading -> {
@@ -60,7 +62,6 @@ fun LoginDialog(uiState: UIState, actions: Actions) {
                         LoginButtons(actions, uiState)
                     }
                 }
-
             }
         },
         confirmButton = {},
@@ -68,23 +69,27 @@ fun LoginDialog(uiState: UIState, actions: Actions) {
 }
 
 @Composable
-private fun LoginButtons(actions: Actions, uiState: UIState) {
+private fun LoginButtons(
+    actions: Actions,
+    uiState: UIState,
+) {
     ErrorMessage(uiState)
     Button(
-        modifier = Modifier
-            .fillMaxWidth(),
+        modifier =
+            Modifier
+                .fillMaxWidth(),
         onClick = {
             actions.login.login()
         },
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
+            horizontalArrangement = Arrangement.Center,
         ) {
             Image(
                 painter = painterResource(id = R.drawable.ic_google_logo),
                 contentDescription = "Google logo",
-                modifier = Modifier.size(24.dp)
+                modifier = Modifier.size(24.dp),
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text("Sign in with Google")
@@ -102,13 +107,13 @@ private fun ErrorMessage(uiState: UIState) {
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center
+        horizontalArrangement = Arrangement.Center,
     ) {
         Icon(
             imageVector = Icons.Default.Close,
             contentDescription = "Error",
             tint = Color.Red,
-            modifier = Modifier.size(Dimens.PaddingNormal)
+            modifier = Modifier.size(Dimens.PaddingNormal),
         )
         Spacer(modifier = Modifier.width(Dimens.PaddingXXSmall))
         Text(
@@ -125,9 +130,10 @@ private fun ErrorMessage(uiState: UIState) {
 private fun LoginDialogPreview() {
     TomatenTheme {
         LoginDialog(
-            uiState = UIState(
-                login = LoginUiState(isDialogVisible = true)
-            ),
+            uiState =
+                UIState(
+                    login = LoginUiState(isDialogVisible = true),
+                ),
             actions = previewActions,
         )
     }
@@ -138,9 +144,10 @@ private fun LoginDialogPreview() {
 private fun LoginDialogLoadingPreview() {
     TomatenTheme {
         LoginDialog(
-            uiState = UIState(
-                login = LoginUiState(isDialogVisible = true, isLoading = true)
-            ),
+            uiState =
+                UIState(
+                    login = LoginUiState(isDialogVisible = true, isLoading = true),
+                ),
             actions = previewActions,
         )
     }
@@ -151,9 +158,10 @@ private fun LoginDialogLoadingPreview() {
 private fun LoginDialogErrorPreview() {
     TomatenTheme {
         LoginDialog(
-            uiState = UIState(
-                login = LoginUiState(isDialogVisible = true, errorMessage = "Something went wrong.")
-            ),
+            uiState =
+                UIState(
+                    login = LoginUiState(isDialogVisible = true, errorMessage = "Something went wrong."),
+                ),
             actions = previewActions,
         )
     }

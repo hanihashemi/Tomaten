@@ -44,16 +44,21 @@ import io.ktor.client.request.get
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
+@Suppress("FunctionName")
 @Composable
-fun TopBar(actions: Actions, uiState: UIState) {
+fun TopBar(
+    actions: Actions,
+    uiState: UIState,
+) {
     val photoUrl = uiState.login.user?.photoUrl
     var showLogoutDialog by remember { mutableStateOf(false) }
 
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .windowInsetsPadding(WindowInsets.statusBars)
-            .padding(horizontal = Dimens.PaddingNormal),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .windowInsetsPadding(WindowInsets.statusBars)
+                .padding(horizontal = Dimens.PaddingNormal),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -62,12 +67,12 @@ fun TopBar(actions: Actions, uiState: UIState) {
             style = Typography.titleLarge,
         )
         Row(
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Button(
                 text = uiState.login.userDisplayName ?: "Login",
                 style = ButtonStyles.Secondary,
-                modifier = Modifier.offset(x = Dimens.PaddingNormal)
+                modifier = Modifier.offset(x = Dimens.PaddingNormal),
             ) {
                 if (!uiState.login.isLoggedIn) {
                     actions.login.displayDialog(true)
@@ -79,10 +84,11 @@ fun TopBar(actions: Actions, uiState: UIState) {
             if (!photoUrl.isNullOrEmpty()) {
                 RemoteImage(
                     url = photoUrl,
-                    modifier = Modifier
-                        .padding(start = Dimens.PaddingSmall)
-                        .size(24.dp)
-                        .clip(CircleShape)
+                    modifier =
+                        Modifier
+                            .padding(start = Dimens.PaddingSmall)
+                            .size(24.dp)
+                            .clip(CircleShape),
                 )
             }
         }
@@ -96,13 +102,17 @@ fun TopBar(actions: Actions, uiState: UIState) {
             },
             onDismiss = {
                 showLogoutDialog = false
-            }
+            },
         )
     }
 }
 
 @Composable
-fun LogoutConfirmDialog(onConfirm: () -> Unit, onDismiss: () -> Unit) {
+@Suppress("FunctionName")
+fun LogoutConfirmDialog(
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
+) {
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
@@ -116,12 +126,16 @@ fun LogoutConfirmDialog(onConfirm: () -> Unit, onDismiss: () -> Unit) {
             }
         },
         title = { Text("Confirm Logout") },
-        text = { Text("Are you sure you want to logout?") }
+        text = { Text("Are you sure you want to logout?") },
     )
 }
 
 @Composable
-private fun RemoteImage(url: String, modifier: Modifier = Modifier) {
+@Suppress("FunctionName")
+private fun RemoteImage(
+    url: String,
+    modifier: Modifier = Modifier,
+) {
     var imageBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
 
     LaunchedEffect(url) {
@@ -137,21 +151,25 @@ private fun RemoteImage(url: String, modifier: Modifier = Modifier) {
     }
 }
 
+@Suppress("FunctionName")
 @Preview(showBackground = true)
 @Composable
 private fun TopBarPreview() {
     TomatenTheme {
         TopBar(
             actions = previewActions,
-            uiState = UIState(
-                login = LoginUiState(
-                    user = User(
-                        name = "Radin",
-                        photoUrl = "https://picsum.photos/200",
-                        uid = "123"
-                    )
-                )
-            )
+            uiState =
+                UIState(
+                    login =
+                        LoginUiState(
+                            user =
+                                User(
+                                    name = "Radin",
+                                    photoUrl = "https://picsum.photos/200",
+                                    uid = "123",
+                                ),
+                        ),
+                ),
         )
     }
 }

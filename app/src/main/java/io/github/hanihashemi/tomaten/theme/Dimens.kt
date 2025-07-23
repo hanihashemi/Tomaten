@@ -5,7 +5,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 object Dimens {
-
     val PaddingXXXSmall: Dp
         @Composable get() = 2.dp
 

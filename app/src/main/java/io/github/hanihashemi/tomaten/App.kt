@@ -10,7 +10,6 @@ import org.koin.core.context.GlobalContext.startKoin
 import timber.log.Timber
 
 class App : Application() {
-
     override fun onCreate() {
         super.onCreate()
         FirebaseApp.initializeApp(this)
@@ -35,7 +34,12 @@ class App : Application() {
     }
 
     private class CrashReportingTree : Timber.Tree() {
-        override fun log(priority: Int, tag: String?, message: String, t: Throwable?) {
+        override fun log(
+            priority: Int,
+            tag: String?,
+            message: String,
+            t: Throwable?,
+        ) {
             if (priority == Log.VERBOSE || priority == Log.DEBUG) return
 
             // Replace with your own crash reporting logic (e.g., Firebase Crashlytics)
@@ -54,4 +58,3 @@ class App : Application() {
         }
     }
 }
-
