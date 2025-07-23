@@ -32,5 +32,8 @@ crashlytics-build.properties
 .compose-metrics/
 .compose-build/
 
+# Firebase
+google-services.json
+
 # Others
 *.hprof
