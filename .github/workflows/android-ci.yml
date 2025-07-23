@@ -34,6 +34,9 @@ jobs:
     - name: Run lint checks
       run: ./gradlew lint
       
+    - name: Run ktlint checks
+      run: ./gradlew ktlintCheck
+      
     - name: Build project
       run: ./gradlew build
       

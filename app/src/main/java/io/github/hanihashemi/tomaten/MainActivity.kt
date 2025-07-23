@@ -26,7 +26,6 @@ import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : ComponentActivity() {
-
     private val viewModel: MainViewModel by viewModel()
     private lateinit var auth: FirebaseAuth
 
@@ -49,26 +48,31 @@ class MainActivity : ComponentActivity() {
         viewModel.uiEvents.collect { event ->
             when (event) {
                 is UiEvents.Login -> {
-                    val googleIdOption = GetGoogleIdOption.Builder()
-                        .setServerClientId(getString(R.string.default_web_client_id))
-                        .setFilterByAuthorizedAccounts(false)
-                        .build()
+                    val googleIdOption =
+                        GetGoogleIdOption.Builder()
+                            .setServerClientId(getString(R.string.default_web_client_id))
+                            .setFilterByAuthorizedAccounts(false)
+                            .build()
 
-                    val request = GetCredentialRequest.Builder()
-                        .addCredentialOption(googleIdOption)
-                        .build()
+                    val request =
+                        GetCredentialRequest.Builder()
+                            .addCredentialOption(googleIdOption)
+                            .build()
 
                     val credentialManager = CredentialManager.create(this@MainActivity)
                     lifecycleScope.launch(Dispatchers.IO) {
                         try {
-                            val result = credentialManager.getCredential(
-                                request = request,
-                                context = this@MainActivity
-                            )
+                            val result =
+                                credentialManager.getCredential(
+                                    request = request,
+                                    context = this@MainActivity,
+                                )
                             handleSignIn(result.credential)
                         } catch (e: GetCredentialException) {
                             if (e.message?.contains("16") == true || e.message?.contains("28433") == true) {
-                                viewModel.actions.login.setErrorMessage("No Google account found. Please sign in to your device and try again.")
+                                viewModel.actions.login.setErrorMessage(
+                                    "No Google account found. Please sign in to your device and try again.",
+                                )
                             } else {
                                 viewModel.actions.login.setErrorMessage("Sign-in failed: ${e.message}")
                             }
@@ -98,7 +102,7 @@ class MainActivity : ComponentActivity() {
                                     email = user.email,
                                     photoUrl = user.photoUrl.toString(),
                                     uid = user.uid,
-                                )
+                                ),
                             )
                         } else {
                             viewModel.actions.login.setErrorMessage("Sign in failed.")

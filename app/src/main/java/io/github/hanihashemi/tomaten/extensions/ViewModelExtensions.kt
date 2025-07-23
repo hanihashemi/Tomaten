@@ -11,5 +11,5 @@ private val coroutineExceptionHandler = CoroutineExceptionHandler { _, t -> Timb
 
 internal fun CoroutineScope.launchSafely(
     context: CoroutineContext,
-    launchBody: suspend CoroutineScope.() -> Unit
+    launchBody: suspend CoroutineScope.() -> Unit,
 ): Job = launch(context + coroutineExceptionHandler) { launchBody.invoke(this) }

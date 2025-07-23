@@ -37,10 +37,9 @@ import io.github.hanihashemi.tomaten.ui.screens.main.components.TopBar
 import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
 
+@Suppress("FunctionName")
 @Composable
-fun MainScreen(
-
-) {
+fun MainScreen() {
     val viewModel: MainViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsState()
     val actions = viewModel.actions
@@ -79,10 +78,11 @@ fun MainScreen(
         topBar = { TopBar(actions, uiState) },
     ) { innerPadding ->
         Column(
-            modifier = Modifier
-                .padding(innerPadding)
-                .fillMaxSize()
-                .padding(Dimens.PaddingNormal),
+            modifier =
+                Modifier
+                    .padding(innerPadding)
+                    .fillMaxSize()
+                    .padding(Dimens.PaddingNormal),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceEvenly,
         ) {
@@ -94,21 +94,22 @@ fun MainScreen(
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier
-                        .padding(16.dp)
-                        .clickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = null
-                        ) {
-                            if (!isTimerRunning) {
-                                showTimePickerDialog = true
-                            }
-                        }
+                    modifier =
+                        Modifier
+                            .padding(16.dp)
+                            .clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null,
+                            ) {
+                                if (!isTimerRunning) {
+                                    showTimePickerDialog = true
+                                }
+                            },
                 )
 
                 Button(
                     text = if (isTimerRunning) "Stop" else "Start",
-                    modifier = Modifier.widthIn(180.dp)
+                    modifier = Modifier.widthIn(180.dp),
                 ) {
                     if (isTimerRunning) {
                         isTimerRunning = false
@@ -158,7 +159,7 @@ fun MainScreen(
             },
             onDismiss = {
                 showTimePickerDialog = false
-            }
+            },
         )
     }
 }
