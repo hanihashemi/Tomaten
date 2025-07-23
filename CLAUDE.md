@@ -6,10 +6,23 @@ This file contains important context and configuration for Claude Code to unders
 Tomaten - A Pomodoro timer application
 
 ## Development Commands
-- Build: (to be added)
-- Test: (to be added)  
-- Lint: (to be added)
-- Type check: (to be added)
+- Build: `./gradlew build`
+- Test: `./gradlew test`  
+- Lint: `./gradlew lint`
+- Ktlint check: `./gradlew ktlintCheck`
+- Ktlint format: `./gradlew ktlintFormat`
+
+## Git Hooks Setup
+To enable pre-commit ktlint checking for all contributors:
+
+```bash
+# Set up git hooks directory
+git config core.hooksPath .githooks
+```
+
+This will run `./gradlew ktlintCheck` before each commit and prevent commits with formatting issues.
 
 ## Important Notes
-- (to be added based on project needs)
+- Pre-commit hook runs ktlint check automatically
+- Use `./gradlew ktlintFormat` to fix formatting issues
+- CI runs tests, lint, and ktlint checks in parallel
