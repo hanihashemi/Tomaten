@@ -1,0 +1,17 @@
+#!/bin/sh
+
+# Pre-commit hook to run ktlintCheck before each commit
+echo "Running ktlint check..."
+
+# Run ktlintCheck
+./gradlew ktlintCheck
+
+# Check if ktlintCheck passed
+if [ $? -ne 0 ]; then
+    echo "❌ ktlint check failed. Please fix formatting issues before committing."
+    echo "You can run './gradlew ktlintFormat' to auto-fix most issues."
+    exit 1
+fi
+
+echo "✅ ktlint check passed!"
+exit 0
