@@ -127,6 +127,8 @@ tasks.register("jacocoTestReport", JacocoReport::class) {
             "**/ui/screens/**",
             "**/ui/dialogs/**",
             "**/ui/components/**",
+            "**/App.*",
+            "**/AppModule.*",
         )
 
     val debugTree =
