@@ -41,6 +41,12 @@ class TimerService : Service() {
         createNotificationChannel()
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        job?.cancel()
+        job = null
+    }
+
     override fun onStartCommand(
         intent: Intent?,
         flags: Int,
