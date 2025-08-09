@@ -3,6 +3,7 @@ package io.github.hanihashemi.tomaten
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
+import io.github.hanihashemi.tomaten.data.repository.TimerSessionRepository
 import io.github.hanihashemi.tomaten.extensions.launchSafely
 import io.github.hanihashemi.tomaten.ui.actions.Actions
 import io.github.hanihashemi.tomaten.ui.events.UiEvents
@@ -13,8 +14,11 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.update
+import timber.log.Timber
+import java.util.Date
 
 open class MainViewModel(
+    private val timerSessionRepository: TimerSessionRepository? = null,
     shouldFetchCurrentUser: Boolean = true,
 ) : ViewModel() {
     private val _uiEvents = MutableSharedFlow<UiEvents>(replay = 0)
@@ -22,6 +26,9 @@ open class MainViewModel(
     private val _uiState = MutableStateFlow(UIState())
     val uiState: StateFlow<UIState> = _uiState
     val actions: Actions by lazy { Actions(this) }
+
+    // Timer session tracking
+    private var sessionStartTime: Date? = null
 
     init {
         if (shouldFetchCurrentUser) {
@@ -52,6 +59,45 @@ open class MainViewModel(
         viewModelScope.launchSafely(Dispatchers.Main) {
             _uiEvents.emit(event)
         }
+    }
+
+    fun startTimerSession() {
+        sessionStartTime = Date()
+        Timber.d("Timer session started at: $sessionStartTime")
+    }
+
+    fun stopTimerSession(completed: Boolean = false) {
+        val startTime = sessionStartTime
+        if (startTime == null) {
+            Timber.w("Cannot stop timer session - no start time recorded")
+            return
+        }
+
+        val currentState = _uiState.value.timer
+        val endTime = Date()
+        val actualDuration = (endTime.time - startTime.time) / 1000 // Convert to seconds
+        val targetDuration = currentState.timeLimit
+
+        viewModelScope.launchSafely(Dispatchers.IO) {
+            timerSessionRepository?.saveTimerSession(
+                startTime = startTime,
+                duration = actualDuration,
+                targetDuration = targetDuration,
+                completed = completed,
+            )?.onSuccess { sessionId ->
+                if (TimerSessionRepository.isSkippedOperation(sessionId)) {
+                    val reason = TimerSessionRepository.getSkipReason(sessionId)
+                    Timber.d("Timer session not saved: $reason")
+                } else {
+                    Timber.d("Timer session saved successfully with ID: $sessionId")
+                }
+            }?.onFailure { error ->
+                Timber.e(error, "Failed to save timer session")
+            }
+        }
+
+        // Reset session tracking
+        sessionStartTime = null
     }
 }
 

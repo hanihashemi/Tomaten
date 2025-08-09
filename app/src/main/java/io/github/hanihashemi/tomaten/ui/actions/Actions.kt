@@ -10,7 +10,7 @@ class Actions(viewModel: MainViewModel) {
 
 val previewActions = Actions(viewModel = FakeViewModel())
 
-class FakeViewModel : MainViewModel(shouldFetchCurrentUser = false)
+class FakeViewModel : MainViewModel(timerSessionRepository = null, shouldFetchCurrentUser = false)
 
 class TimerAction(private val viewModel: MainViewModel) {
     fun startOrStop() {
@@ -18,10 +18,16 @@ class TimerAction(private val viewModel: MainViewModel) {
         val isRunning = viewModel.uiState.value.timer.isRunning
 
         if (isRunning) {
+            // Determine if timer was completed by checking remaining time
+            val remainingTime = viewModel.uiState.value.timer.timeRemaining
+            val completed = remainingTime <= 0
+
             changeTimerState(false)
+            viewModel.stopTimerSession(completed = completed)
             viewModel.sendEvent(UiEvents.StopTimer)
         } else {
             changeTimerState(true)
+            viewModel.startTimerSession()
             viewModel.sendEvent(UiEvents.StartTimer(timeLimit))
         }
     }
