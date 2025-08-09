@@ -14,7 +14,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.update
 
-open class MainViewModel : ViewModel() {
+open class MainViewModel(
+    shouldFetchCurrentUser: Boolean = true,
+) : ViewModel() {
     private val _uiEvents = MutableSharedFlow<UiEvents>(replay = 0)
     val uiEvents = _uiEvents.asSharedFlow()
     private val _uiState = MutableStateFlow(UIState())
@@ -22,7 +24,9 @@ open class MainViewModel : ViewModel() {
     val actions: Actions by lazy { Actions(this) }
 
     init {
-        fetchCurrentUser()
+        if (shouldFetchCurrentUser) {
+            fetchCurrentUser()
+        }
     }
 
     private fun fetchCurrentUser() {

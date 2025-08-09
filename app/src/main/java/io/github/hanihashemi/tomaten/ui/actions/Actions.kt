@@ -10,7 +10,7 @@ class Actions(viewModel: MainViewModel) {
 
 val previewActions = Actions(viewModel = FakeViewModel())
 
-class FakeViewModel : MainViewModel()
+class FakeViewModel : MainViewModel(shouldFetchCurrentUser = false)
 
 class TimerAction(private val viewModel: MainViewModel) {
     fun startOrStop() {
