@@ -4,6 +4,7 @@ import io.github.hanihashemi.tomaten.User
 
 data class UIState(
     val login: LoginUiState = LoginUiState(),
+    val timer: TimerUiState = TimerUiState(),
 )
 
 data class LoginUiState(
@@ -18,3 +19,10 @@ data class LoginUiState(
     val isLoggedIn: Boolean
         get() = user != null
 }
+
+data class TimerUiState(
+    val isRunning: Boolean = false,
+    val timeRemaining: Long = 15 * 60,
+    val timeLimit: Long = 15 * 60,
+    val isDialogVisible: Boolean = false,
+)

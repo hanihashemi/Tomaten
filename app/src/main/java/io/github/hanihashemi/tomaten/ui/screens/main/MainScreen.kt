@@ -12,10 +12,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -28,13 +26,14 @@ import androidx.compose.ui.unit.sp
 import io.github.hanihashemi.tomaten.Button
 import io.github.hanihashemi.tomaten.ButtonStyles
 import io.github.hanihashemi.tomaten.MainViewModel
+import io.github.hanihashemi.tomaten.extensions.formatTime
+import io.github.hanihashemi.tomaten.extensions.toSeconds
 import io.github.hanihashemi.tomaten.theme.Dimens
 import io.github.hanihashemi.tomaten.ui.components.TimePickerDialog
 import io.github.hanihashemi.tomaten.ui.dialogs.login.LoginDialog
 import io.github.hanihashemi.tomaten.ui.screens.main.components.Tomi
 import io.github.hanihashemi.tomaten.ui.screens.main.components.TomiEmotes
 import io.github.hanihashemi.tomaten.ui.screens.main.components.TopBar
-import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
 
 @Suppress("FunctionName")
@@ -46,32 +45,6 @@ fun MainScreen() {
 
     var emote by remember { mutableStateOf<TomiEmotes>(TomiEmotes.Smile) }
     var isZoomed by remember { mutableStateOf(false) }
-
-    // Timer state
-    var timerDurationMinutes by remember { mutableIntStateOf(15) } // Timer duration in minutes
-    var timeRemaining by remember { mutableIntStateOf(15 * 60) } // 15 minutes in seconds
-    var isTimerRunning by remember { mutableStateOf(false) }
-    var showTimePickerDialog by remember { mutableStateOf(false) }
-
-    // Timer countdown effect
-    LaunchedEffect(isTimerRunning) {
-        if (isTimerRunning) {
-            while (timeRemaining > 0 && isTimerRunning) {
-                delay(1000) // Wait 1 second
-                timeRemaining--
-            }
-            if (timeRemaining == 0) {
-                isTimerRunning = false
-            }
-        }
-    }
-
-    // Format time display (MM:SS)
-    fun formatTime(seconds: Int): String {
-        val minutes = seconds / 60
-        val remainingSeconds = seconds % 60
-        return "%02d:%02d".format(minutes, remainingSeconds)
-    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -89,7 +62,7 @@ fun MainScreen() {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 // Timer Display - Clickable to open time picker
                 Text(
-                    text = formatTime(timeRemaining),
+                    text = uiState.timer.timeRemaining.formatTime(),
                     fontSize = 48.sp,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center,
@@ -101,22 +74,15 @@ fun MainScreen() {
                                 interactionSource = remember { MutableInteractionSource() },
                                 indication = null,
                             ) {
-                                if (!isTimerRunning) {
-                                    showTimePickerDialog = true
-                                }
+                                actions.timer.displayDialog(true)
                             },
                 )
 
                 Button(
-                    text = if (isTimerRunning) "Stop" else "Start",
+                    text = if (uiState.timer.isRunning) "Stop" else "Start",
                     modifier = Modifier.widthIn(180.dp),
                 ) {
-                    if (isTimerRunning) {
-                        isTimerRunning = false
-                    } else {
-                        timeRemaining = timerDurationMinutes * 60 // Reset to selected duration
-                        isTimerRunning = true
-                    }
+                    viewModel.actions.timer.startOrStop()
                 }
                 Button("Focus", style = ButtonStyles.Secondary) { }
 
@@ -149,16 +115,14 @@ fun MainScreen() {
             actions = actions,
         )
 
-        // Time Picker Dialog
         TimePickerDialog(
-            isVisible = showTimePickerDialog,
-            currentTimeMinutes = timerDurationMinutes,
+            isVisible = uiState.timer.isDialogVisible,
+            currentTimeMinutes = uiState.timer.timeRemaining.toInt(),
             onTimeSelected = { selectedMinutes: Int ->
-                timerDurationMinutes = selectedMinutes
-                timeRemaining = selectedMinutes * 60
+                actions.timer.setTimeLimit(selectedMinutes.toSeconds())
             },
             onDismiss = {
-                showTimePickerDialog = false
+                actions.timer.displayDialog(false)
             },
         )
     }
