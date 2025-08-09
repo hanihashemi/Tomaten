@@ -59,15 +59,6 @@ class TimerSessionRepository {
         }
     }
 
-    fun isUserAuthenticated(): Boolean {
-        return try {
-            auth?.currentUser != null
-        } catch (e: Exception) {
-            Timber.w("Error checking authentication status: ${e.message}")
-            false
-        }
-    }
-
     suspend fun saveTimerSession(
         startTime: Date,
         duration: Long,
