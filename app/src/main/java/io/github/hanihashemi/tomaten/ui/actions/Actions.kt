@@ -2,6 +2,7 @@ package io.github.hanihashemi.tomaten.ui.actions
 
 import io.github.hanihashemi.tomaten.MainViewModel
 import io.github.hanihashemi.tomaten.ui.events.UiEvents
+import java.util.Date
 
 class Actions(viewModel: MainViewModel) {
     val login = LoginAction(viewModel)
@@ -22,12 +23,27 @@ class TimerAction(private val viewModel: MainViewModel) {
             val remainingTime = viewModel.uiState.value.timer.timeRemaining
             val completed = remainingTime <= 0
 
-            changeTimerState(false)
-            viewModel.stopTimerSession(completed = completed)
+            viewModel.updateState {
+                it.copy(
+                    timer =
+                        it.timer.copy(
+                            isRunning = false,
+                            startTime = null,
+                        ),
+                )
+            }
+            viewModel.saveTimerSession(completed = completed)
             viewModel.sendEvent(UiEvents.StopTimer)
         } else {
-            changeTimerState(true)
-            viewModel.startTimerSession()
+            viewModel.updateState {
+                it.copy(
+                    timer =
+                        it.timer.copy(
+                            isRunning = true,
+                            startTime = Date(),
+                        ),
+                )
+            }
             viewModel.sendEvent(UiEvents.StartTimer(timeLimit))
         }
     }
@@ -59,12 +75,6 @@ class TimerAction(private val viewModel: MainViewModel) {
     fun updateTimer(remainingTime: Long) {
         viewModel.updateState {
             it.copy(timer = it.timer.copy(timeRemaining = remainingTime))
-        }
-    }
-
-    private fun changeTimerState(isRunning: Boolean) {
-        viewModel.updateState {
-            it.copy(timer = it.timer.copy(isRunning = isRunning))
         }
     }
 }

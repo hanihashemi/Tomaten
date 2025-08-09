@@ -15,7 +15,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.update
 import timber.log.Timber
-import java.util.Date
 
 open class MainViewModel(
     private val timerSessionRepository: TimerSessionRepository? = null,
@@ -26,9 +25,6 @@ open class MainViewModel(
     private val _uiState = MutableStateFlow(UIState())
     val uiState: StateFlow<UIState> = _uiState
     val actions: Actions by lazy { Actions(this) }
-
-    // Timer session tracking
-    private var sessionStartTime: Date? = null
 
     init {
         if (shouldFetchCurrentUser) {
@@ -61,22 +57,17 @@ open class MainViewModel(
         }
     }
 
-    fun startTimerSession() {
-        sessionStartTime = Date()
-        Timber.d("Timer session started at: $sessionStartTime")
-    }
-
-    fun stopTimerSession(completed: Boolean = false) {
-        val startTime = sessionStartTime
+    fun saveTimerSession(completed: Boolean = false) {
+        val timerState = uiState.value.timer
+        val startTime = timerState.startTime
         if (startTime == null) {
             Timber.w("Cannot stop timer session - no start time recorded")
             return
         }
 
-        val currentState = _uiState.value.timer
-        val endTime = Date()
-        val actualDuration = (endTime.time - startTime.time) / 1000 // Convert to seconds
-        val targetDuration = currentState.timeLimit
+        // Calculate actual duration: how much time has elapsed since start
+        val actualDuration = timerState.timeLimit - timerState.timeRemaining
+        val targetDuration = timerState.timeLimit
 
         viewModelScope.launchSafely(Dispatchers.IO) {
             timerSessionRepository?.saveTimerSession(
@@ -95,9 +86,6 @@ open class MainViewModel(
                 Timber.e(error, "Failed to save timer session")
             }
         }
-
-        // Reset session tracking
-        sessionStartTime = null
     }
 }
 
