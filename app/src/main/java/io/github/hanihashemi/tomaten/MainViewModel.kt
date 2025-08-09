@@ -31,7 +31,7 @@ open class MainViewModel : ViewModel() {
                 User(
                     name = user.displayName,
                     email = user.email,
-                    photoUrl = user.photoUrl.toString().orEmpty(),
+                    photoUrl = user.photoUrl.toString(),
                     uid = user.uid,
                 )
             updateState {
