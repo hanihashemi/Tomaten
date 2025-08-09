@@ -50,9 +50,9 @@ class TimerAction(private val viewModel: MainViewModel) {
         }
     }
 
-    fun updateTimer(remainingTime: Int) {
+    fun updateTimer(remainingTime: Long) {
         viewModel.updateState {
-            it.copy(timer = it.timer.copy(timeRemaining = remainingTime.toLong()))
+            it.copy(timer = it.timer.copy(timeRemaining = remainingTime))
         }
     }
 

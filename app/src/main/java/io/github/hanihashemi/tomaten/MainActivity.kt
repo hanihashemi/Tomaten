@@ -103,7 +103,7 @@ class MainActivity : ComponentActivity() {
                     context: Context?,
                     intent: Intent?,
                 ) {
-                    val remainingTime = intent?.getIntExtra(REMAINING_TIME, 0) ?: 0
+                    val remainingTime = intent?.getLongExtra(REMAINING_TIME, 0) ?: 0
                     viewModel.actions.timer.updateTimer(remainingTime)
                 }
             }
