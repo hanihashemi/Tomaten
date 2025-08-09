@@ -33,12 +33,37 @@ jobs:
       - name: 🧪 Run unit tests
         run: ./gradlew test
 
+      - name: 📊 Generate test coverage report
+        run: ./gradlew jacocoTestReport
+
+      - name: 📝 Add coverage comment to PR
+        id: jacoco
+        uses: madrapps/jacoco-report@v1.6.1
+        if: github.event_name == 'pull_request'
+        with:
+          paths: |
+            ${{ github.workspace }}/app/build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml
+          token: ${{ secrets.GITHUB_TOKEN }}
+          min-coverage-overall: 40
+          min-coverage-changed-files: 60
+          title: 📊 Test Coverage Report
+          update-comment: true
+
       - name: 📦 Upload test results
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: test-results
           path: app/build/test-results/
+
+      - name: 📦 Upload coverage reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-reports
+          path: |
+            app/build/reports/jacoco/
+            app/build/reports/tests/
 
   lint:
     name: 🧹 Lint
