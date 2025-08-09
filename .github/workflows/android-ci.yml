@@ -4,6 +4,10 @@ on:
   pull_request:
     branches: [ development ]
 
+permissions:
+  contents: read
+  pull-requests: write
+
 jobs:
   test:
     name: 🧪 Run Unit Tests
@@ -36,18 +40,30 @@ jobs:
       - name: 📊 Generate test coverage report
         run: ./gradlew jacocoTestReport
 
+      - name: 🔍 Verify coverage report exists
+        run: |
+          echo "Checking for coverage report..."
+          ls -la app/build/reports/jacoco/jacocoTestReport/
+          if [ -f "app/build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml" ]; then
+            echo "✅ Coverage report found"
+            cat app/build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml | head -10
+          else
+            echo "❌ Coverage report not found"
+            find app/build -name "*.xml" -path "*/jacoco/*" | head -5
+          fi
+
       - name: 📝 Add coverage comment to PR
         id: jacoco
         uses: madrapps/jacoco-report@v1.6.1
         if: github.event_name == 'pull_request'
         with:
-          paths: |
-            ${{ github.workspace }}/app/build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml
+          paths: app/build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml
           token: ${{ secrets.GITHUB_TOKEN }}
           min-coverage-overall: 40
           min-coverage-changed-files: 60
           title: 📊 Test Coverage Report
           update-comment: true
+          debug-mode: true
 
       - name: 📦 Upload test results
         uses: actions/upload-artifact@v4

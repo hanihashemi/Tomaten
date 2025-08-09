@@ -1,6 +1,7 @@
 package io.github.hanihashemi.tomaten.ui.states
 
 import io.github.hanihashemi.tomaten.User
+import java.util.Date
 
 data class UIState(
     val login: LoginUiState = LoginUiState(),
@@ -25,4 +26,5 @@ data class TimerUiState(
     val timeRemaining: Long = 15 * 60,
     val timeLimit: Long = 15 * 60,
     val isDialogVisible: Boolean = false,
+    val startTime: Date? = null,
 )

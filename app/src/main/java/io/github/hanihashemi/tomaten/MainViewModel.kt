@@ -3,6 +3,7 @@ package io.github.hanihashemi.tomaten
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
+import io.github.hanihashemi.tomaten.data.repository.TimerSessionRepository
 import io.github.hanihashemi.tomaten.extensions.launchSafely
 import io.github.hanihashemi.tomaten.ui.actions.Actions
 import io.github.hanihashemi.tomaten.ui.events.UiEvents
@@ -13,8 +14,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.update
+import timber.log.Timber
 
 open class MainViewModel(
+    private val timerSessionRepository: TimerSessionRepository? = null,
     shouldFetchCurrentUser: Boolean = true,
 ) : ViewModel() {
     private val _uiEvents = MutableSharedFlow<UiEvents>(replay = 0)
@@ -51,6 +54,37 @@ open class MainViewModel(
     fun sendEvent(event: UiEvents) {
         viewModelScope.launchSafely(Dispatchers.Main) {
             _uiEvents.emit(event)
+        }
+    }
+
+    fun saveTimerSession(completed: Boolean = false) {
+        val timerState = uiState.value.timer
+        val startTime = timerState.startTime
+        if (startTime == null) {
+            Timber.w("Cannot stop timer session - no start time recorded")
+            return
+        }
+
+        // Calculate actual duration: how much time has elapsed since start
+        val actualDuration = timerState.timeLimit - timerState.timeRemaining
+        val targetDuration = timerState.timeLimit
+
+        viewModelScope.launchSafely(Dispatchers.IO) {
+            timerSessionRepository?.saveTimerSession(
+                startTime = startTime,
+                duration = actualDuration,
+                targetDuration = targetDuration,
+                completed = completed,
+            )?.onSuccess { sessionId ->
+                if (TimerSessionRepository.isSkippedOperation(sessionId)) {
+                    val reason = TimerSessionRepository.getSkipReason(sessionId)
+                    Timber.d("Timer session not saved: $reason")
+                } else {
+                    Timber.d("Timer session saved successfully with ID: $sessionId")
+                }
+            }?.onFailure { error ->
+                Timber.e(error, "Failed to save timer session")
+            }
         }
     }
 }

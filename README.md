@@ -20,9 +20,9 @@ It helps users stay focused and productive by breaking work into intervals, usin
 - ~~[X] Create different composable functions for different emotions~~
 - ~~[X] Login/Register with Firebase~~
 - [ ] Add a timer countdown
-  - [ ] countdown
-  - [ ] Start/Stop/Finish
-  - [ ] Record in database
+  - ~~[X] countdown~~
+  - ~~[X] Start/Stop/Finish~~
+  - ~~[X] Record in database~~
 - [ ] Store/Fetch from database. (no need for realtime database)
 - [ ] Change design to black.
 - [ ] Statistic on main page.

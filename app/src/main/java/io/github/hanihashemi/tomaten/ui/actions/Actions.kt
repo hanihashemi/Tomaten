@@ -2,6 +2,7 @@ package io.github.hanihashemi.tomaten.ui.actions
 
 import io.github.hanihashemi.tomaten.MainViewModel
 import io.github.hanihashemi.tomaten.ui.events.UiEvents
+import java.util.Date
 
 class Actions(viewModel: MainViewModel) {
     val login = LoginAction(viewModel)
@@ -10,7 +11,7 @@ class Actions(viewModel: MainViewModel) {
 
 val previewActions = Actions(viewModel = FakeViewModel())
 
-class FakeViewModel : MainViewModel(shouldFetchCurrentUser = false)
+class FakeViewModel : MainViewModel(timerSessionRepository = null, shouldFetchCurrentUser = false)
 
 class TimerAction(private val viewModel: MainViewModel) {
     fun startOrStop() {
@@ -18,10 +19,31 @@ class TimerAction(private val viewModel: MainViewModel) {
         val isRunning = viewModel.uiState.value.timer.isRunning
 
         if (isRunning) {
-            changeTimerState(false)
+            // Determine if timer was completed by checking remaining time
+            val remainingTime = viewModel.uiState.value.timer.timeRemaining
+            val completed = remainingTime <= 0
+
+            viewModel.updateState {
+                it.copy(
+                    timer =
+                        it.timer.copy(
+                            isRunning = false,
+                            startTime = null,
+                        ),
+                )
+            }
+            viewModel.saveTimerSession(completed = completed)
             viewModel.sendEvent(UiEvents.StopTimer)
         } else {
-            changeTimerState(true)
+            viewModel.updateState {
+                it.copy(
+                    timer =
+                        it.timer.copy(
+                            isRunning = true,
+                            startTime = Date(),
+                        ),
+                )
+            }
             viewModel.sendEvent(UiEvents.StartTimer(timeLimit))
         }
     }
@@ -53,12 +75,6 @@ class TimerAction(private val viewModel: MainViewModel) {
     fun updateTimer(remainingTime: Long) {
         viewModel.updateState {
             it.copy(timer = it.timer.copy(timeRemaining = remainingTime))
-        }
-    }
-
-    private fun changeTimerState(isRunning: Boolean) {
-        viewModel.updateState {
-            it.copy(timer = it.timer.copy(isRunning = isRunning))
         }
     }
 }
