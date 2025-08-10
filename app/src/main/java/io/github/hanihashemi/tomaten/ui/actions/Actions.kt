@@ -7,11 +7,12 @@ import java.util.Date
 class Actions(viewModel: MainViewModel) {
     val login = LoginAction(viewModel)
     val timer = TimerAction(viewModel)
+    val tag = TagAction(viewModel)
 }
 
 val previewActions = Actions(viewModel = FakeViewModel())
 
-class FakeViewModel : MainViewModel(timerSessionRepository = null, shouldFetchCurrentUser = false)
+class FakeViewModel : MainViewModel(timerSessionRepository = null, tagRepository = null, shouldFetchCurrentUser = false)
 
 class TimerAction(private val viewModel: MainViewModel) {
     fun startOrStop() {

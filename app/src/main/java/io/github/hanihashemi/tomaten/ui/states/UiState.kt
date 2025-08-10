@@ -6,6 +6,7 @@ import java.util.Date
 data class UIState(
     val login: LoginUiState = LoginUiState(),
     val timer: TimerUiState = TimerUiState(),
+    val tag: TagUiState = TagUiState(),
 )
 
 data class LoginUiState(
