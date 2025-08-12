@@ -37,11 +37,11 @@
         <service
             android:name=".services.TimerService"
             android:externalService="false"
-            android:foregroundServiceType="shortService">
+            android:foregroundServiceType="specialUse">
 
             <property
                 android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
-                android:value="Timer" />
+                android:value="timer" />
 
         </service>
     </application>

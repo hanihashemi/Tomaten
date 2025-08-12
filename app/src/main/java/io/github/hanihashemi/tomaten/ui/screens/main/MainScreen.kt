@@ -29,6 +29,7 @@ import io.github.hanihashemi.tomaten.MainViewModel
 import io.github.hanihashemi.tomaten.extensions.formatTime
 import io.github.hanihashemi.tomaten.extensions.toSeconds
 import io.github.hanihashemi.tomaten.theme.Dimens
+import io.github.hanihashemi.tomaten.ui.components.SelectTagDialog
 import io.github.hanihashemi.tomaten.ui.components.TimePickerDialog
 import io.github.hanihashemi.tomaten.ui.dialogs.login.LoginDialog
 import io.github.hanihashemi.tomaten.ui.screens.main.components.Tomi
@@ -84,7 +85,12 @@ fun MainScreen() {
                 ) {
                     viewModel.actions.timer.startOrStop()
                 }
-                Button("Focus", style = ButtonStyles.Secondary) { }
+                Button(
+                    text = uiState.tag.selectedTag?.name ?: "Focus",
+                    style = ButtonStyles.Secondary,
+                ) {
+                    actions.tag.showSelectDialog()
+                }
 
                 Tomi(
                     modifier = Modifier,
@@ -125,5 +131,14 @@ fun MainScreen() {
                 actions.timer.displayDialog(false)
             },
         )
+
+        if (uiState.tag.isSelectDialogVisible) {
+            SelectTagDialog(
+                tagState = uiState.tag,
+                tagAction = actions.tag,
+                timerRunning = uiState.timer.isRunning,
+                onDismiss = { actions.tag.hideSelectDialog() },
+            )
+        }
     }
 }
