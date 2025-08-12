@@ -46,8 +46,7 @@ class TimerSessionRepository : BaseFirebaseRepository() {
                             .document(userId)
                             .collection(COLLECTION_TIMER_SESSIONS)
                             .add(session)
-                            .runCatching { await() }
-                            .getOrThrow()
+                            .run { await() }
 
                     Timber.d("Timer session saved with ID: ${documentRef.id}")
                     Result.success(documentRef.id)

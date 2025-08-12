@@ -53,18 +53,6 @@ abstract class BaseFirebaseRepository {
     }
 
     /**
-     * Checks if Firebase services are available and ready to use.
-     */
-    protected fun isFirebaseAvailable(): Boolean {
-        return try {
-            firestore != null && auth != null
-        } catch (e: Exception) {
-            Timber.w("Firebase not available: ${e.message}")
-            false
-        }
-    }
-
-    /**
      * Gets the current user ID if the user is logged in and not anonymous.
      * Returns a skip reason if the user cannot be authenticated.
      */
