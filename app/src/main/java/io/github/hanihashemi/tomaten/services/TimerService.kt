@@ -55,7 +55,7 @@ class TimerService : Service() {
         startForeground()
         val timeInMillis = intent?.getLongExtra(TIME_PARAM, 0) ?: 0
         startTimer(timeInMillis)
-        return START_STICKY
+        return START_NOT_STICKY
     }
 
     private fun startForeground() {
@@ -63,7 +63,7 @@ class TimerService : Service() {
         val notification = createNotification(notificationContent, 0, 0)
         val notificationType =
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                ServiceInfo.FOREGROUND_SERVICE_TYPE_SHORT_SERVICE
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
             } else {
                 0
             }
@@ -96,6 +96,8 @@ class TimerService : Service() {
                 }
                 sendTimeUpdate()
                 showCompletionNotification()
+                // Stop the foreground service when timer completes
+                stopSelf()
             }
     }
 
