@@ -14,6 +14,8 @@ data class TimerSession(
     val targetDuration: Long = 0L,
     // Whether the timer was completed or stopped early
     val completed: Boolean = false,
+    // Tag ID associated with this timer session
+    val tagId: String? = null,
     @ServerTimestamp
     val createdAt: Date? = null,
 )

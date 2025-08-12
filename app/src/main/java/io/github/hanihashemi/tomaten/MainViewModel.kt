@@ -3,6 +3,8 @@ package io.github.hanihashemi.tomaten
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
+import io.github.hanihashemi.tomaten.data.repository.BaseFirebaseRepository
+import io.github.hanihashemi.tomaten.data.repository.TagRepository
 import io.github.hanihashemi.tomaten.data.repository.TimerSessionRepository
 import io.github.hanihashemi.tomaten.extensions.launchSafely
 import io.github.hanihashemi.tomaten.ui.actions.Actions
@@ -18,6 +20,7 @@ import timber.log.Timber
 
 open class MainViewModel(
     private val timerSessionRepository: TimerSessionRepository? = null,
+    private val tagRepository: TagRepository? = null,
     shouldFetchCurrentUser: Boolean = true,
 ) : ViewModel() {
     private val _uiEvents = MutableSharedFlow<UiEvents>(replay = 0)
@@ -29,6 +32,7 @@ open class MainViewModel(
     init {
         if (shouldFetchCurrentUser) {
             fetchCurrentUser()
+            initializeDefaultFocusTag()
         }
     }
 
@@ -75,15 +79,44 @@ open class MainViewModel(
                 duration = actualDuration,
                 targetDuration = targetDuration,
                 completed = completed,
+                tagId = uiState.value.tag.selectedTagId,
             )?.onSuccess { sessionId ->
-                if (TimerSessionRepository.isSkippedOperation(sessionId)) {
-                    val reason = TimerSessionRepository.getSkipReason(sessionId)
+                if (BaseFirebaseRepository.isSkippedOperation(sessionId)) {
+                    val reason = BaseFirebaseRepository.getSkipReason(sessionId)
                     Timber.d("Timer session not saved: $reason")
                 } else {
                     Timber.d("Timer session saved successfully with ID: $sessionId")
                 }
             }?.onFailure { error ->
                 Timber.e(error, "Failed to save timer session")
+            }
+        }
+    }
+
+    suspend fun getTags() = tagRepository?.getTags() ?: emptyList()
+
+    suspend fun addTag(tag: io.github.hanihashemi.tomaten.data.model.Tag) = tagRepository?.addTag(tag) ?: tag.id
+
+    suspend fun deleteTag(tagId: String) = tagRepository?.deleteTag(tagId) ?: true
+
+    fun getDefaultFocusTagId() = tagRepository?.getDefaultFocusTagId() ?: ""
+
+    private fun initializeDefaultFocusTag() {
+        viewModelScope.launchSafely(Dispatchers.IO) {
+            // Initialize tags in database and get them
+            val tags = tagRepository?.getTags() ?: emptyList()
+            val defaultFocusTagId = getDefaultFocusTagId()
+
+            if (defaultFocusTagId.isNotEmpty()) {
+                updateState { state ->
+                    state.copy(
+                        tag =
+                            state.tag.copy(
+                                selectedTagId = defaultFocusTagId,
+                                tags = tags,
+                            ),
+                    )
+                }
             }
         }
     }

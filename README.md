@@ -12,14 +12,14 @@ It helps users stay focused and productive by breaking work into intervals, usin
 - ~~[X] Add `.gitignore`~~
 - ~~[X] Add & configure [Koin](https://insert-koin.io) for dependency injection~~
 - ~~[X] Design the **Main Screen**~~
-- [ ] Choose a name for Tomaten character 
+- [ ] Choose a name for Tomaten character
 - ~~[X] Ask ChatGPT to draw a character for Tomaten~~
 - ~~[X] Import Tomaten vector character into project~~
 - ~~[X] Ask chatGpt to draw Tomaten with drawPath~~
 - ~~[X] Create different mouth with emotions :)~~
 - ~~[X] Create different composable functions for different emotions~~
 - ~~[X] Login/Register with Firebase~~
-- [ ] Add a timer countdown
+- ~~[X] Add a timer countdown~~
   - ~~[X] countdown~~
   - ~~[X] Start/Stop/Finish~~
   - ~~[X] Record in database~~
@@ -29,12 +29,12 @@ It helps users stay focused and productive by breaking work into intervals, usin
 - [ ] Statistic page.
 - [ ] Setting
 - [ ] Add tags dialog.
-- 
+-
 
 ---
 
 ### 📦 Future Ideas
 - [ ] Play white noise
-- 
+-
 
 ---
