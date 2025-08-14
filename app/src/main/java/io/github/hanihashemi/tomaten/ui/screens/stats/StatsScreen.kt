@@ -1,6 +1,7 @@
 package io.github.hanihashemi.tomaten.ui.screens.stats
 
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -17,6 +18,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -51,6 +53,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInParent
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -165,6 +170,34 @@ private fun StatsTabRow(
     selectedRange: StatsRange,
     onTabSelected: (StatsRange) -> Unit,
 ) {
+    val density = LocalDensity.current
+    var tabPositions by remember { mutableStateOf<Map<StatsRange, Pair<Float, Float>>>(emptyMap()) }
+
+    val currentPosition = tabPositions[selectedRange]
+
+    // Animate the position and width of the active indicator
+    val animatedOffset by animateDpAsState(
+        targetValue =
+            if (currentPosition != null) {
+                with(density) { currentPosition.first.toDp() }
+            } else {
+                0.dp
+            },
+        animationSpec = tween(durationMillis = 250),
+        label = "tab_offset",
+    )
+
+    val animatedWidth by animateDpAsState(
+        targetValue =
+            if (currentPosition != null) {
+                with(density) { currentPosition.second.toDp() }
+            } else {
+                0.dp
+            },
+        animationSpec = tween(durationMillis = 250),
+        label = "tab_width",
+    )
+
     // Container for the segmented control
     Surface(
         modifier =
@@ -176,66 +209,78 @@ private fun StatsTabRow(
         shape = RoundedCornerShape(9999.dp),
         border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE5E7EB)),
     ) {
-        Row(
+        Box(
             modifier = Modifier.padding(4.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly,
         ) {
-            StatsRange.entries.forEach { range ->
-                val isSelected = selectedRange == range
-
+            // Animated background pill
+            if (currentPosition != null && animatedWidth > 0.dp) {
                 Box(
                     modifier =
                         Modifier
-                            .weight(1f)
+                            .offset(x = animatedOffset)
+                            .width(animatedWidth)
                             .height(36.dp)
-                            .clickable(
-                                interactionSource = remember { MutableInteractionSource() },
-                                indication =
-                                    ripple(
-                                        bounded = true,
-                                        radius = 18.dp,
-                                        color = if (isSelected) Color(0xFF111827) else Color(0xFF374151),
-                                    ),
-                            ) { onTabSelected(range) }
                             .background(
-                                color =
-                                    if (isSelected) {
-                                        Color.White
-                                    } else {
-                                        Color.Transparent
-                                    },
+                                color = Color.White,
                                 shape = RoundedCornerShape(9999.dp),
                             )
-                            .then(
-                                if (isSelected) {
-                                    Modifier.border(
-                                        1.dp,
-                                        Color(0xFFD1D5DB),
-                                        RoundedCornerShape(9999.dp),
-                                    )
-                                } else {
-                                    Modifier
+                            .border(
+                                1.dp,
+                                Color(0xFFD1D5DB),
+                                RoundedCornerShape(9999.dp),
+                            ),
+                )
+            }
+
+            // Tab content row
+            Row(
+                horizontalArrangement = Arrangement.SpaceEvenly,
+            ) {
+                StatsRange.entries.forEachIndexed { index, range ->
+                    val isSelected = selectedRange == range
+
+                    Box(
+                        modifier =
+                            Modifier
+                                .weight(1f)
+                                .height(36.dp)
+                                .onGloballyPositioned { coordinates ->
+                                    val position = coordinates.positionInParent()
+                                    val width = coordinates.size.width.toFloat()
+                                    tabPositions =
+                                        tabPositions.toMutableMap().apply {
+                                            put(range, Pair(position.x, width))
+                                        }
+                                }
+                                .clickable(
+                                    interactionSource = remember { MutableInteractionSource() },
+                                    indication =
+                                        ripple(
+                                            bounded = true,
+                                            radius = 18.dp,
+                                            color = if (isSelected) Color(0xFF111827) else Color(0xFF374151),
+                                        ),
+                                ) { onTabSelected(range) }
+                                .semantics {
+                                    contentDescription = "${range.displayName} stats tab"
                                 },
-                            )
-                            .semantics {
-                                contentDescription = "${range.displayName} stats tab"
-                            },
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Text(
-                        text = range.displayName,
-                        modifier = Modifier.padding(horizontal = 14.dp),
-                        style = MaterialTheme.typography.labelMedium,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        color =
-                            if (isSelected) {
-                                Color(0xFF111827)
-                            } else {
-                                Color(0xFF374151)
-                            },
-                        fontWeight = FontWeight.Medium,
-                    )
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(
+                            text = range.displayName,
+                            modifier = Modifier.padding(horizontal = 14.dp),
+                            style = MaterialTheme.typography.labelMedium,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            color =
+                                if (isSelected) {
+                                    Color(0xFF111827)
+                                } else {
+                                    Color(0xFF374151)
+                                },
+                            fontWeight = FontWeight.Medium,
+                        )
+                    }
                 }
             }
         }
