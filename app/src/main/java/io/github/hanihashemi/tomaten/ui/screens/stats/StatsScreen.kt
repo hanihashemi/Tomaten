@@ -4,6 +4,7 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,8 +20,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -163,49 +162,68 @@ private fun StatsTabRow(
     selectedRange: StatsRange,
     onTabSelected: (StatsRange) -> Unit,
 ) {
-    LazyRow(
+    // Container for the segmented control
+    Surface(
         modifier =
             Modifier
                 .fillMaxWidth()
-                .semantics { contentDescription = "Stats time range selector" },
-        horizontalArrangement = Arrangement.spacedBy(Dimens.PaddingSmall),
-        contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = Dimens.PaddingNormal),
+                .semantics { contentDescription = "Stats time range selector" }
+                .padding(horizontal = Dimens.PaddingNormal),
+        color = Color(0xFFF4F5F7),
+        shape = RoundedCornerShape(9999.dp),
+        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE5E7EB)),
     ) {
-        itemsIndexed(StatsRange.entries) { index, range ->
-            val isSelected = selectedRange == range
+        Row(
+            modifier = Modifier.padding(4.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+        ) {
+            StatsRange.entries.forEach { range ->
+                val isSelected = selectedRange == range
 
-            Surface(
-                modifier =
-                    Modifier
-                        .clickable { onTabSelected(range) }
-                        .clip(RoundedCornerShape(20.dp))
-                        .semantics {
-                            contentDescription = "${range.displayName} stats tab"
-                        },
-                color =
-                    if (isSelected) {
-                        MaterialTheme.colorScheme.primary
-                    } else {
-                        MaterialTheme.colorScheme.surfaceVariant
-                    },
-                contentColor =
-                    if (isSelected) {
-                        MaterialTheme.colorScheme.onPrimary
-                    } else {
-                        MaterialTheme.colorScheme.onSurfaceVariant
-                    },
-                shape = RoundedCornerShape(20.dp),
-            ) {
-                Text(
-                    text = range.displayName,
+                Box(
                     modifier =
-                        Modifier.padding(
-                            horizontal = Dimens.PaddingNormal,
-                            vertical = Dimens.PaddingSmall,
-                        ),
-                    style = MaterialTheme.typography.labelLarge,
-                    fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
-                )
+                        Modifier
+                            .weight(1f)
+                            .height(36.dp)
+                            .clickable { onTabSelected(range) }
+                            .background(
+                                color =
+                                    if (isSelected) {
+                                        Color.White
+                                    } else {
+                                        Color.Transparent
+                                    },
+                                shape = RoundedCornerShape(9999.dp),
+                            )
+                            .then(
+                                if (isSelected) {
+                                    Modifier.border(
+                                        1.dp,
+                                        Color(0xFFD1D5DB),
+                                        RoundedCornerShape(9999.dp),
+                                    )
+                                } else {
+                                    Modifier
+                                },
+                            )
+                            .semantics {
+                                contentDescription = "${range.displayName} stats tab"
+                            },
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        text = range.displayName,
+                        modifier = Modifier.padding(horizontal = 14.dp),
+                        style = MaterialTheme.typography.labelLarge,
+                        color =
+                            if (isSelected) {
+                                Color(0xFF111827)
+                            } else {
+                                Color(0xFF374151)
+                            },
+                        fontWeight = FontWeight.Medium,
+                    )
+                }
             }
         }
     }
@@ -716,11 +734,11 @@ private fun TabTestPreview() {
             // Simple color indicator that changes based on selection
             val indicatorColor =
                 when (selectedRange) {
-                    StatsRange.Day -> Color.Red
-                    StatsRange.Week -> Color.Green
-                    StatsRange.Month -> Color.Blue
-                    StatsRange.Year -> Color.Magenta
-                    StatsRange.All -> Color.Cyan
+                    StatsRange.Day -> Color(0xFF007AFF) // Same vibrant blue as active tab
+                    StatsRange.Week -> Color(0xFF007AFF)
+                    StatsRange.Month -> Color(0xFF007AFF)
+                    StatsRange.Year -> Color(0xFF007AFF)
+                    StatsRange.All -> Color(0xFF007AFF)
                 }
 
             Box(
