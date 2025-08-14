@@ -1,5 +1,6 @@
 package io.github.hanihashemi.tomaten.ui.screens.stats
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
@@ -303,6 +304,9 @@ private fun TotalsCard(
         modifier =
             Modifier
                 .fillMaxWidth()
+                .animateContentSize(
+                    animationSpec = tween(durationMillis = 500),
+                )
                 .semantics { contentDescription = "Stats totals summary" },
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
@@ -345,12 +349,22 @@ private fun KpiBlock(
     value: String,
     modifier: Modifier = Modifier,
 ) {
+    val numericValue = value.toIntOrNull() ?: 0
+    val animatedValue = remember { Animatable(0f) }
+
+    LaunchedEffect(numericValue) {
+        animatedValue.animateTo(
+            targetValue = numericValue.toFloat(),
+            animationSpec = tween(durationMillis = 800),
+        )
+    }
+
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
-            text = value,
+            text = animatedValue.value.toInt().toString(),
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.primary,
@@ -374,10 +388,22 @@ private fun FocusTimeCard(
         tagBreakdown.filter { it.durationMinutes > 0 }
             .sortedByDescending { it.durationMinutes }
 
+    val animatedFocusMinutes = remember { Animatable(0f) }
+
+    LaunchedEffect(totalFocusMinutes) {
+        animatedFocusMinutes.animateTo(
+            targetValue = totalFocusMinutes.toFloat(),
+            animationSpec = tween(durationMillis = 800),
+        )
+    }
+
     Card(
         modifier =
             Modifier
                 .fillMaxWidth()
+                .animateContentSize(
+                    animationSpec = tween(durationMillis = 500),
+                )
                 .semantics { contentDescription = "Focus time breakdown by tags" },
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
@@ -393,7 +419,7 @@ private fun FocusTimeCard(
             )
 
             Text(
-                text = formatDuration(totalFocusMinutes),
+                text = formatDuration(animatedFocusMinutes.value.toInt()),
                 style = MaterialTheme.typography.headlineLarge,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary,
@@ -506,6 +532,9 @@ private fun OutcomesCard(
         modifier =
             Modifier
                 .fillMaxWidth()
+                .animateContentSize(
+                    animationSpec = tween(durationMillis = 500),
+                )
                 .semantics {
                     contentDescription =
                         "Session outcomes: $finished finished, $abandoned abandoned"
@@ -592,11 +621,20 @@ private fun OutcomeCounter(
     count: Int,
     color: Color,
 ) {
+    val animatedCount = remember { Animatable(0f) }
+
+    LaunchedEffect(count) {
+        animatedCount.animateTo(
+            targetValue = count.toFloat(),
+            animationSpec = tween(durationMillis = 800),
+        )
+    }
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
-            text = count.toString(),
+            text = animatedCount.value.toInt().toString(),
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
             color = color,
