@@ -3,6 +3,8 @@ package io.github.hanihashemi.tomaten.ui.screens.stats
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,6 +19,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -31,15 +35,13 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -161,36 +163,48 @@ private fun StatsTabRow(
     selectedRange: StatsRange,
     onTabSelected: (StatsRange) -> Unit,
 ) {
-    var selectedTabIndex by remember { mutableIntStateOf(StatsRange.Day.ordinal) }
-
-    LaunchedEffect(selectedRange) {
-        selectedTabIndex = selectedRange.ordinal
-    }
-
-    ScrollableTabRow(
-        selectedTabIndex = selectedTabIndex,
+    LazyRow(
         modifier =
             Modifier
                 .fillMaxWidth()
                 .semantics { contentDescription = "Stats time range selector" },
-        edgePadding = 0.dp,
+        horizontalArrangement = Arrangement.spacedBy(Dimens.PaddingSmall),
+        contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = Dimens.PaddingNormal),
     ) {
-        StatsRange.entries.forEachIndexed { index, range ->
-            Tab(
-                selected = selectedTabIndex == index,
-                onClick = {
-                    selectedTabIndex = index
-                    onTabSelected(range)
-                },
+        itemsIndexed(StatsRange.entries) { index, range ->
+            val isSelected = selectedRange == range
+
+            Surface(
                 modifier =
-                    Modifier.semantics {
-                        contentDescription = "${range.displayName} stats tab"
+                    Modifier
+                        .clickable { onTabSelected(range) }
+                        .clip(RoundedCornerShape(20.dp))
+                        .semantics {
+                            contentDescription = "${range.displayName} stats tab"
+                        },
+                color =
+                    if (isSelected) {
+                        MaterialTheme.colorScheme.primary
+                    } else {
+                        MaterialTheme.colorScheme.surfaceVariant
                     },
+                contentColor =
+                    if (isSelected) {
+                        MaterialTheme.colorScheme.onPrimary
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    },
+                shape = RoundedCornerShape(20.dp),
             ) {
                 Text(
                     text = range.displayName,
-                    modifier = Modifier.padding(Dimens.PaddingSmall),
+                    modifier =
+                        Modifier.padding(
+                            horizontal = Dimens.PaddingNormal,
+                            vertical = Dimens.PaddingSmall,
+                        ),
                     style = MaterialTheme.typography.labelLarge,
+                    fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
                 )
             }
         }
@@ -564,40 +578,106 @@ private fun formatDuration(minutes: Int): String {
     }
 }
 
+private fun getSampleDataForRange(range: StatsRange): StatsData {
+    val sampleTags =
+        listOf(
+            Tag(name = "Focus", color = TagColor.TEAL),
+            Tag(name = "Work", color = TagColor.BLUE),
+            Tag(name = "Study", color = TagColor.GREEN),
+            Tag(name = "Exercise", color = TagColor.ORANGE),
+            Tag(name = "Reading", color = TagColor.PURPLE),
+        )
+
+    return when (range) {
+        StatsRange.Day ->
+            StatsData(
+                totalSessionsFinished = 6,
+                totalActiveDays = 1,
+                totalFocusTimeMinutes = 180,
+                tagBreakdown =
+                    listOf(
+                        TagStats(sampleTags[0], 120),
+                        TagStats(sampleTags[1], 60),
+                    ),
+                finishedSessions = 5,
+                abandonedSessions = 1,
+            )
+        StatsRange.Week ->
+            StatsData(
+                totalSessionsFinished = 28,
+                totalActiveDays = 5,
+                totalFocusTimeMinutes = 840,
+                tagBreakdown =
+                    listOf(
+                        TagStats(sampleTags[0], 480),
+                        TagStats(sampleTags[1], 240),
+                        TagStats(sampleTags[2], 120),
+                    ),
+                finishedSessions = 25,
+                abandonedSessions = 3,
+            )
+        StatsRange.Month ->
+            StatsData(
+                totalSessionsFinished = 95,
+                totalActiveDays = 18,
+                totalFocusTimeMinutes = 2850,
+                tagBreakdown =
+                    listOf(
+                        TagStats(sampleTags[0], 1440),
+                        TagStats(sampleTags[1], 720),
+                        TagStats(sampleTags[2], 420),
+                        TagStats(sampleTags[3], 270),
+                    ),
+                finishedSessions = 82,
+                abandonedSessions = 13,
+            )
+        StatsRange.Year ->
+            StatsData(
+                totalSessionsFinished = 450,
+                totalActiveDays = 125,
+                totalFocusTimeMinutes = 13500,
+                tagBreakdown =
+                    listOf(
+                        TagStats(sampleTags[0], 6000),
+                        TagStats(sampleTags[1], 3600),
+                        TagStats(sampleTags[2], 2400),
+                        TagStats(sampleTags[3], 1200),
+                        TagStats(sampleTags[4], 300),
+                    ),
+                finishedSessions = 390,
+                abandonedSessions = 60,
+            )
+        StatsRange.All ->
+            StatsData(
+                totalSessionsFinished = 1250,
+                totalActiveDays = 365,
+                totalFocusTimeMinutes = 37500,
+                tagBreakdown =
+                    listOf(
+                        TagStats(sampleTags[0], 18000),
+                        TagStats(sampleTags[1], 9000),
+                        TagStats(sampleTags[2], 6000),
+                        TagStats(sampleTags[3], 3000),
+                        TagStats(sampleTags[4], 1500),
+                    ),
+                finishedSessions = 1050,
+                abandonedSessions = 200,
+            )
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
 private fun StatsScreenPreview() {
     TomatenTheme {
-        val sampleTags =
-            listOf(
-                Tag(name = "Focus", color = TagColor.TEAL),
-                Tag(name = "Work", color = TagColor.BLUE),
-                Tag(name = "Study", color = TagColor.GREEN),
-                Tag(name = "Exercise", color = TagColor.ORANGE),
-            )
+        var selectedRange by remember { mutableStateOf(StatsRange.Week) }
+        val statsData = getSampleDataForRange(selectedRange)
 
-        val sampleData =
-            StatsData(
-                totalSessionsFinished = 42,
-                totalActiveDays = 7,
-                // 18h 49m
-                totalFocusTimeMinutes = 1129,
-                tagBreakdown =
-                    listOf(
-                        // 18h 13m
-                        TagStats(sampleTags[0], 1093),
-                        // 4h
-                        TagStats(sampleTags[1], 240),
-                        // 2h
-                        TagStats(sampleTags[2], 120),
-                        // 1h
-                        TagStats(sampleTags[3], 60),
-                    ),
-                finishedSessions = 38,
-                abandonedSessions = 4,
-            )
-
-        StatsScreen(statsData = sampleData)
+        StatsScreen(
+            statsData = statsData,
+            selectedRange = selectedRange,
+            onTabSelected = { selectedRange = it },
+        )
     }
 }
 
@@ -605,29 +685,108 @@ private fun StatsScreenPreview() {
 @Composable
 private fun StatsScreenLargeNumbersPreview() {
     TomatenTheme {
-        val sampleTags =
-            listOf(
-                Tag(name = "Focus", color = TagColor.TEAL),
-                Tag(name = "Work", color = TagColor.BLUE),
+        var selectedRange by remember { mutableStateOf(StatsRange.All) }
+        val statsData = getSampleDataForRange(selectedRange)
+
+        StatsScreen(
+            statsData = statsData,
+            selectedRange = selectedRange,
+            onTabSelected = { selectedRange = it },
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Tab Test")
+@Composable
+private fun TabTestPreview() {
+    TomatenTheme {
+        var selectedRange by remember { mutableStateOf(StatsRange.Day) }
+
+        Column(
+            modifier = Modifier.padding(16.dp),
+        ) {
+            Text(
+                text = "🔥 CLICK TEST - TAP TABS TO CHANGE DATA",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.padding(bottom = 16.dp),
             )
 
-        val sampleData =
-            StatsData(
-                totalSessionsFinished = 150,
-                totalActiveDays = 45,
-                // 60h
-                totalFocusTimeMinutes = 3600,
-                tagBreakdown =
-                    listOf(
-                        // 40h
-                        TagStats(sampleTags[0], 2400),
-                        // 20h
-                        TagStats(sampleTags[1], 1200),
+            // Simple color indicator that changes based on selection
+            val indicatorColor =
+                when (selectedRange) {
+                    StatsRange.Day -> Color.Red
+                    StatsRange.Week -> Color.Green
+                    StatsRange.Month -> Color.Blue
+                    StatsRange.Year -> Color.Magenta
+                    StatsRange.All -> Color.Cyan
+                }
+
+            Box(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .height(60.dp)
+                        .background(indicatorColor, RoundedCornerShape(8.dp))
+                        .padding(16.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    text = "SELECTED: ${selectedRange.displayName}",
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White,
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            StatsTabRow(
+                selectedRange = selectedRange,
+                onTabSelected = { newRange ->
+                    selectedRange = newRange
+                },
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Simple numeric data that's very different for each range
+            val testData =
+                when (selectedRange) {
+                    StatsRange.Day -> "DAY: 1 session, 25 minutes"
+                    StatsRange.Week -> "WEEK: 10 sessions, 5 hours"
+                    StatsRange.Month -> "MONTH: 50 sessions, 25 hours"
+                    StatsRange.Year -> "YEAR: 200 sessions, 100 hours"
+                    StatsRange.All -> "ALL TIME: 1000 sessions, 500 hours"
+                }
+
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors =
+                    CardDefaults.cardColors(
+                        containerColor = indicatorColor.copy(alpha = 0.1f),
                     ),
-                finishedSessions = 120,
-                abandonedSessions = 30,
-            )
-
-        StatsScreen(statsData = sampleData)
+            ) {
+                Column(
+                    modifier = Modifier.padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Text(
+                        text = "📊 DATA CHANGES HERE:",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(bottom = 8.dp),
+                    )
+                    Text(
+                        text = testData,
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = indicatorColor,
+                        textAlign = TextAlign.Center,
+                    )
+                }
+            }
+        }
     }
 }
