@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -34,7 +35,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -258,7 +258,14 @@ private fun StatsTabRow(
                                         ripple(
                                             bounded = true,
                                             radius = 18.dp,
-                                            color = if (isSelected) Color(0xFF111827) else Color(0xFF374151),
+                                            color =
+                                                if (isSelected) {
+                                                    Color(0xFF111827)
+                                                } else {
+                                                    Color(
+                                                        0xFF374151,
+                                                    )
+                                                },
                                         ),
                                 ) { onTabSelected(range) }
                                 .semantics {
@@ -410,6 +417,7 @@ private fun TagProgressRow(
     totalMinutes: Int,
 ) {
     val progress = if (totalMinutes > 0) tagStat.durationMinutes.toFloat() / totalMinutes else 0f
+    val percentage = (progress * 100).toInt()
     val animatedProgress = remember { Animatable(0f) }
 
     LaunchedEffect(progress) {
@@ -424,53 +432,61 @@ private fun TagProgressRow(
             Modifier
                 .fillMaxWidth()
                 .semantics {
-                    contentDescription = "${tagStat.tag.name} tag used for ${formatDuration(tagStat.durationMinutes)}"
+                    contentDescription =
+                        "${tagStat.tag.name} tag used for ${formatDuration(tagStat.durationMinutes)}, $percentage percent"
                 },
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        // Tag chip
-        Surface(
-            modifier =
-                Modifier
-                    .clip(RoundedCornerShape(16.dp))
-                    .semantics { contentDescription = tagStat.tag.name },
-            color = tagStat.tag.color.displayColor,
-            contentColor = Color.White,
-        ) {
-            Text(
-                text = tagStat.tag.name,
-                modifier =
-                    Modifier.padding(
-                        horizontal = Dimens.PaddingSmall,
-                        vertical = Dimens.PaddingXXXSmall,
-                    ),
-                style = MaterialTheme.typography.labelMedium,
-                fontWeight = FontWeight.Medium,
-            )
-        }
-
-        Spacer(modifier = Modifier.width(Dimens.PaddingSmall))
-
-        // Progress bar
-        LinearProgressIndicator(
-            progress = { animatedProgress.value },
+        // Thicker progress bar with percentage inside
+        Box(
             modifier =
                 Modifier
                     .weight(1f)
-                    .height(8.dp)
-                    .clip(RoundedCornerShape(4.dp)),
-            color = tagStat.tag.color.displayColor,
-        )
+                    .height(24.dp)
+                    .background(
+                        color = MaterialTheme.colorScheme.surfaceVariant,
+                        shape = RoundedCornerShape(12.dp),
+                    ),
+            contentAlignment = Alignment.CenterStart,
+        ) {
+            // Progress fill
+            Box(
+                modifier =
+                    Modifier
+                        .fillMaxHeight()
+                        .fillMaxWidth(animatedProgress.value)
+                        .background(
+                            color = tagStat.tag.color.displayColor,
+                            shape = RoundedCornerShape(12.dp),
+                        ),
+            )
+            // Percentage text inside progress bar
+            Text(
+                text = "$percentage%",
+                modifier = Modifier.padding(start = 12.dp),
+                style = MaterialTheme.typography.labelMedium,
+                fontWeight = FontWeight.Medium,
+                color = Color.White,
+            )
+        }
 
-        Spacer(modifier = Modifier.width(Dimens.PaddingSmall))
-
-        // Duration text
-        Text(
-            text = formatDuration(tagStat.durationMinutes),
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.Medium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
+        // Label and time stacked vertically on the far right
+        Column(
+            modifier = Modifier.padding(start = 12.dp),
+            horizontalAlignment = Alignment.End,
+        ) {
+            Text(
+                text = tagStat.tag.name,
+                style = MaterialTheme.typography.labelMedium,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+            Text(
+                text = formatDuration(tagStat.durationMinutes),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
     }
 }
 
@@ -491,7 +507,8 @@ private fun OutcomesCard(
             Modifier
                 .fillMaxWidth()
                 .semantics {
-                    contentDescription = "Session outcomes: $finished finished, $abandoned abandoned"
+                    contentDescription =
+                        "Session outcomes: $finished finished, $abandoned abandoned"
                 },
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
@@ -678,6 +695,7 @@ private fun getSampleDataForRange(range: StatsRange): StatsData {
                 finishedSessions = 5,
                 abandonedSessions = 1,
             )
+
         StatsRange.Week ->
             StatsData(
                 totalSessionsFinished = 28,
@@ -692,6 +710,7 @@ private fun getSampleDataForRange(range: StatsRange): StatsData {
                 finishedSessions = 25,
                 abandonedSessions = 3,
             )
+
         StatsRange.Month ->
             StatsData(
                 totalSessionsFinished = 95,
@@ -707,6 +726,7 @@ private fun getSampleDataForRange(range: StatsRange): StatsData {
                 finishedSessions = 82,
                 abandonedSessions = 13,
             )
+
         StatsRange.Year ->
             StatsData(
                 totalSessionsFinished = 450,
@@ -723,6 +743,7 @@ private fun getSampleDataForRange(range: StatsRange): StatsData {
                 finishedSessions = 390,
                 abandonedSessions = 60,
             )
+
         StatsRange.All ->
             StatsData(
                 totalSessionsFinished = 1250,
