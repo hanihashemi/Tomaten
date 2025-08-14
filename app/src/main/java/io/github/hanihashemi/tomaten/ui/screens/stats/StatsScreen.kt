@@ -6,6 +6,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -37,6 +38,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -53,6 +55,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.hanihashemi.tomaten.data.model.Tag
@@ -185,7 +188,15 @@ private fun StatsTabRow(
                         Modifier
                             .weight(1f)
                             .height(36.dp)
-                            .clickable { onTabSelected(range) }
+                            .clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication =
+                                    ripple(
+                                        bounded = true,
+                                        radius = 18.dp,
+                                        color = if (isSelected) Color(0xFF111827) else Color(0xFF374151),
+                                    ),
+                            ) { onTabSelected(range) }
                             .background(
                                 color =
                                     if (isSelected) {
@@ -214,7 +225,9 @@ private fun StatsTabRow(
                     Text(
                         text = range.displayName,
                         modifier = Modifier.padding(horizontal = 14.dp),
-                        style = MaterialTheme.typography.labelLarge,
+                        style = MaterialTheme.typography.labelMedium,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                         color =
                             if (isSelected) {
                                 Color(0xFF111827)
