@@ -39,7 +39,7 @@ import org.koin.androidx.compose.koinViewModel
 
 @Suppress("FunctionName")
 @Composable
-fun MainScreen() {
+fun MainScreen(onNavigateToStats: () -> Unit = {}) {
     val viewModel: MainViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsState()
     val actions = viewModel.actions
@@ -90,6 +90,12 @@ fun MainScreen() {
                     style = ButtonStyles.Secondary,
                 ) {
                     actions.tag.showSelectDialog()
+                }
+                Button(
+                    text = "Stats",
+                    style = ButtonStyles.Secondary,
+                ) {
+                    onNavigateToStats()
                 }
 
                 Tomi(
