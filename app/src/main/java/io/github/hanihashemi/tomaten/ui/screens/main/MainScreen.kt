@@ -39,8 +39,10 @@ import org.koin.androidx.compose.koinViewModel
 
 @Suppress("FunctionName")
 @Composable
-fun MainScreen(onNavigateToStats: () -> Unit = {}) {
-    val viewModel: MainViewModel = koinViewModel()
+fun MainScreen(
+    onNavigateToStats: () -> Unit = {},
+    viewModel: MainViewModel = koinViewModel(),
+) {
     val uiState by viewModel.uiState.collectAsState()
     val actions = viewModel.actions
 
