@@ -44,8 +44,22 @@ jobs:
             Leave inline comments on specific lines that need improvement, have bugs, or could be optimized.
             Be constructive and helpful in your feedback.
 
+            IMPORTANT: If you find any CRITICAL issues (security vulnerabilities, major bugs that could cause crashes or data loss, or architectural problems), start your comment with "CRITICAL:" to mark it as a failing condition.
+
           # Optional: Use sticky comments to make Claude reuse the same comment on subsequent pushes to the same PR
           use_sticky_comment: true
+
+      - name: Check for Critical Issues
+        if: steps.claude-review.outputs.comments != ''
+        run: |
+          # Check if any comments contain "CRITICAL:" prefix
+          if echo "${{ steps.claude-review.outputs.comments }}" | grep -q "CRITICAL:"; then
+            echo "❌ Critical issues found in code review!"
+            echo "Please address the critical issues before merging."
+            exit 1
+          else
+            echo "✅ No critical issues found. Review completed successfully."
+          fi
 
           # Optional: Customize review based on file types
           # direct_prompt: |
