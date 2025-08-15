@@ -3,7 +3,6 @@ package io.github.hanihashemi.tomaten
 import android.app.Application
 import android.os.Build
 import android.util.Log
-import com.google.firebase.BuildConfig
 import com.google.firebase.FirebaseApp
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
@@ -52,11 +51,8 @@ class App : Application() {
     }
 
     private fun setupTimber() {
-        if (BuildConfig.DEBUG) {
-            Timber.plant(Timber.DebugTree())
-        } else {
-            Timber.plant(CrashReportingTree())
-        }
+        Timber.plant(Timber.DebugTree())
+        //             Timber.plant(CrashReportingTree())
     }
 
     private class CrashReportingTree : Timber.Tree() {

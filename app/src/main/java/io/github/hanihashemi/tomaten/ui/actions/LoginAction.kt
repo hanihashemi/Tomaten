@@ -27,10 +27,10 @@ class LoginAction(private val viewModel: MainViewModel) {
                 login =
                     it.login.copy(
                         isLoading = true,
+                        errorMessage = null,
                     ),
             )
         }
-
         viewModel.sendEvent(UiEvents.Login)
     }
 

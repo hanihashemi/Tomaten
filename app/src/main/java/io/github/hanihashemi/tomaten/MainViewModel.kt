@@ -23,7 +23,7 @@ open class MainViewModel(
     private val tagRepository: TagRepository? = null,
     shouldFetchCurrentUser: Boolean = true,
 ) : ViewModel() {
-    private val _uiEvents = MutableSharedFlow<UiEvents>(replay = 0)
+    private val _uiEvents = MutableSharedFlow<UiEvents>(replay = 1)
     val uiEvents = _uiEvents.asSharedFlow()
     private val _uiState = MutableStateFlow(UIState())
     val uiState: StateFlow<UIState> = _uiState
