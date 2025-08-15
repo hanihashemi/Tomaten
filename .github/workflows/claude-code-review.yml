@@ -26,14 +26,22 @@ jobs:
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
 
+          # Focus only on changed lines in the PR
+          focus_on_changes: true
+
+          # Enable line-level comments on specific code that needs improvement
+          comment_on_code: true
+
           direct_prompt: |
-            Please review this pull request and provide feedback on:
+            Please review only the changed parts of this pull request and provide feedback on:
             - Code quality and best practices
             - Potential bugs or issues
             - Performance considerations
             - Security concerns
             - Test coverage
 
+            Focus specifically on the modified lines and their immediate context.
+            Leave inline comments on specific lines that need improvement, have bugs, or could be optimized.
             Be constructive and helpful in your feedback.
 
           # Optional: Use sticky comments to make Claude reuse the same comment on subsequent pushes to the same PR
