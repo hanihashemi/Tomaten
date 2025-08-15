@@ -143,6 +143,16 @@ class MainActivity : ComponentActivity() {
                 } else {
                     viewModel.actions.login.setErrorMessage("Sign-in failed: ${e.message}")
                 }
+            } catch (e: SecurityException) {
+                if (e.message?.contains("Unknown calling package name") == true) {
+                    viewModel.actions.login.setErrorMessage(
+                        "Authentication service error. Please restart the app and try again.",
+                    )
+                } else {
+                    viewModel.actions.login.setErrorMessage("Security error: ${e.message}")
+                }
+            } catch (e: Exception) {
+                viewModel.actions.login.setErrorMessage("Login failed: ${e.message}")
             }
         }
     }
@@ -188,8 +198,12 @@ class MainActivity : ComponentActivity() {
                             viewModel.actions.login.setErrorMessage("Sign in failed.")
                         }
                     } else {
-                        viewModel.actions.login.setErrorMessage("Sign in failed.")
+                        val errorMessage = task.exception?.message ?: "Sign in failed."
+                        viewModel.actions.login.setErrorMessage("Firebase authentication failed: $errorMessage")
                     }
+                }
+                .addOnFailureListener { exception ->
+                    viewModel.actions.login.setErrorMessage("Authentication error: ${exception.message}")
                 }
         } else {
             viewModel.actions.login.setErrorMessage(errorMessage = "Credential is not of type Google ID!")
