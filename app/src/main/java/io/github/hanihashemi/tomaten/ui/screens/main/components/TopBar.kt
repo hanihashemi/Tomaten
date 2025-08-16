@@ -2,6 +2,7 @@ package io.github.hanihashemi.tomaten.ui.screens.main.components
 
 import android.graphics.BitmapFactory
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
@@ -12,9 +13,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -36,6 +35,7 @@ import io.github.hanihashemi.tomaten.theme.TomatenTheme
 import io.github.hanihashemi.tomaten.theme.Typography
 import io.github.hanihashemi.tomaten.ui.actions.Actions
 import io.github.hanihashemi.tomaten.ui.actions.previewActions
+import io.github.hanihashemi.tomaten.ui.dialogs.profile.UserProfileDialog
 import io.github.hanihashemi.tomaten.ui.states.LoginUiState
 import io.github.hanihashemi.tomaten.ui.states.UIState
 import io.ktor.client.HttpClient
@@ -51,7 +51,7 @@ fun TopBar(
     uiState: UIState,
 ) {
     val photoUrl = uiState.login.user?.photoUrl
-    var showLogoutDialog by remember { mutableStateOf(false) }
+    var showUserProfileDialog by remember { mutableStateOf(false) }
 
     Row(
         modifier =
@@ -77,7 +77,7 @@ fun TopBar(
                 if (!uiState.login.isLoggedIn) {
                     actions.login.displayDialog(true)
                 } else {
-                    showLogoutDialog = true
+                    showUserProfileDialog = true
                 }
             }
 
@@ -88,46 +88,29 @@ fun TopBar(
                         Modifier
                             .padding(start = Dimens.PaddingSmall)
                             .size(24.dp)
-                            .clip(CircleShape),
+                            .clip(CircleShape)
+                            .clickable {
+                                if (uiState.login.isLoggedIn) {
+                                    showUserProfileDialog = true
+                                }
+                            },
                 )
             }
         }
     }
 
-    if (showLogoutDialog) {
-        LogoutConfirmDialog(
-            onConfirm = {
-                actions.login.logout()
-                showLogoutDialog = false
-            },
+    if (showUserProfileDialog && uiState.login.user != null) {
+        UserProfileDialog(
+            user = uiState.login.user,
             onDismiss = {
-                showLogoutDialog = false
+                showUserProfileDialog = false
+            },
+            onLogout = {
+                actions.login.logout()
+                showUserProfileDialog = false
             },
         )
     }
-}
-
-@Composable
-@Suppress("FunctionName")
-fun LogoutConfirmDialog(
-    onConfirm: () -> Unit,
-    onDismiss: () -> Unit,
-) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        confirmButton = {
-            TextButton(onClick = onConfirm) {
-                Text("Logout")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancel")
-            }
-        },
-        title = { Text("Confirm Logout") },
-        text = { Text("Are you sure you want to logout?") },
-    )
 }
 
 @Composable
