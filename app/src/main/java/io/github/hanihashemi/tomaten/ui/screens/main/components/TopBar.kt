@@ -140,9 +140,14 @@ private fun RemoteImage(
 
     LaunchedEffect(url) {
         withContext(Dispatchers.IO) {
-            val byteArray = HttpClient().get(url).body<ByteArray>()
-            val bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
-            imageBitmap = bitmap.asImageBitmap()
+            try {
+                val byteArray = HttpClient().get(url).body<ByteArray>()
+                val bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
+                imageBitmap = bitmap.asImageBitmap()
+            } catch (e: Exception) {
+                // Silently handle network errors when offline
+                imageBitmap = null
+            }
         }
     }
 

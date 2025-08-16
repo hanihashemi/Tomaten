@@ -38,6 +38,7 @@ fun TomatenNavigation(
                 onNavigateToStats = {
                     navController.navigate(TomatenDestination.Stats.route)
                 },
+                viewModel = viewModel,
             )
         }
 

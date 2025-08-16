@@ -14,7 +14,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.runtime.LaunchedEffect
 import androidx.core.content.ContextCompat
 import androidx.credentials.Credential
 import androidx.credentials.CredentialManager
@@ -40,6 +39,7 @@ import io.github.hanihashemi.tomaten.ui.events.UiEvents
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import timber.log.Timber
 
 class MainActivity : ComponentActivity() {
     private val viewModel: MainViewModel by viewModel()
@@ -62,12 +62,13 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         listenToTimerService()
+
+        lifecycleScope.launch {
+            listenToUiEvents()
+        }
+
         setContent {
             TomatenTheme {
-                LaunchedEffect(Unit) {
-                    listenToUiEvents()
-                }
-
                 TomatenNavigation(viewModel = viewModel)
             }
         }
@@ -82,7 +83,10 @@ class MainActivity : ComponentActivity() {
     private suspend fun listenToUiEvents() {
         viewModel.uiEvents.collect { event ->
             when (event) {
-                is UiEvents.Login -> login()
+                is UiEvents.Login -> {
+                    login()
+                }
+
                 is UiEvents.StopTimer -> {
                     val intent = Intent(this, TimerService::class.java)
                     stopService(intent)
@@ -115,35 +119,76 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun login() {
-        val googleIdOption =
-            GetGoogleIdOption.Builder()
-                .setServerClientId(getString(R.string.default_web_client_id))
-                .setFilterByAuthorizedAccounts(false)
-                .build()
+        Timber.d("==> Login process started")
 
-        val request =
-            GetCredentialRequest.Builder()
-                .addCredentialOption(googleIdOption)
-                .build()
+        try {
+            val googleIdOption =
+                GetGoogleIdOption.Builder()
+                    .setServerClientId(getString(R.string.default_web_client_id))
+                    .setFilterByAuthorizedAccounts(false)
+                    .build()
 
-        val credentialManager = CredentialManager.create(this@MainActivity)
-        lifecycleScope.launch(Dispatchers.IO) {
-            try {
-                val result =
-                    credentialManager.getCredential(
-                        request = request,
-                        context = this@MainActivity,
-                    )
-                handleSignIn(result.credential)
-            } catch (e: GetCredentialException) {
-                if (e.message?.contains("16") == true || e.message?.contains("28433") == true) {
+            val request =
+                GetCredentialRequest.Builder()
+                    .addCredentialOption(googleIdOption)
+                    .build()
+
+            val credentialManager = CredentialManager.create(this@MainActivity)
+            Timber.d("==> CredentialManager created, starting credential request")
+
+            lifecycleScope.launch(Dispatchers.IO) {
+                try {
+                    // Add timeout using withTimeout
+                    val result =
+                        kotlinx.coroutines.withTimeout(30000L) { // 30 second timeout
+                            credentialManager.getCredential(
+                                request = request,
+                                context = this@MainActivity,
+                            )
+                        }
+                    Timber.d("==> Credential received successfully")
+                    handleSignIn(result.credential)
+                } catch (e: kotlinx.coroutines.TimeoutCancellationException) {
+                    Timber.e(e, "==> Login timeout")
                     viewModel.actions.login.setErrorMessage(
-                        "No Google account found. Please sign in to your device and try again.",
+                        "Login timed out. Please check your internet connection and try again.",
                     )
-                } else {
-                    viewModel.actions.login.setErrorMessage("Sign-in failed: ${e.message}")
+                } catch (e: GetCredentialException) {
+                    Timber.e(e, "==> GetCredentialException during login")
+                    when {
+                        e.message?.contains("16") == true || e.message?.contains("28433") == true -> {
+                            viewModel.actions.login.setErrorMessage(
+                                "No Google account found. Please sign in to your device and try again.",
+                            )
+                        }
+
+                        e.message?.contains("CANCELED") == true -> {
+                            viewModel.actions.login.setErrorMessage(
+                                "Login was canceled. Please try again.",
+                            )
+                        }
+
+                        else -> {
+                            viewModel.actions.login.setErrorMessage("Sign-in failed: ${e.message}")
+                        }
+                    }
+                } catch (e: SecurityException) {
+                    Timber.e(e, "==> SecurityException during login")
+                    if (e.message?.contains("Unknown calling package name") == true) {
+                        viewModel.actions.login.setErrorMessage(
+                            "Authentication service error. Please restart the app and try again.",
+                        )
+                    } else {
+                        viewModel.actions.login.setErrorMessage("Security error: ${e.message}")
+                    }
+                } catch (e: Exception) {
+                    Timber.e(e, "==> Unexpected login error")
+                    viewModel.actions.login.setErrorMessage("Login failed: ${e.message}")
                 }
             }
+        } catch (e: Exception) {
+            Timber.e(e, "==> Login setup failed")
+            viewModel.actions.login.setErrorMessage("Login setup failed: ${e.message}")
         }
     }
 
@@ -164,35 +209,58 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun handleSignIn(credential: Credential) {
+        Timber.d("==> handleSignIn called with credential type: ${credential.type}")
+
         if (credential is CustomCredential && credential.type == TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
-            val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
-            val firebaseAuthCredential =
-                GoogleAuthProvider.getCredential(googleIdTokenCredential.idToken, null)
+            try {
+                Timber.d("==> Processing Google ID token credential")
+                val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
+                val firebaseAuthCredential =
+                    GoogleAuthProvider.getCredential(googleIdTokenCredential.idToken, null)
 
-            // Sign in to Firebase with using the token
-            auth.signInWithCredential(firebaseAuthCredential)
-                .addOnCompleteListener(this) { task ->
-                    if (task.isSuccessful) {
-                        val user = auth.currentUser
+                Timber.d("==> Starting Firebase authentication")
+                // Sign in to Firebase with using the token
+                auth.signInWithCredential(firebaseAuthCredential)
+                    .addOnCompleteListener(this) { task ->
+                        if (task.isSuccessful) {
+                            Timber.d("==> Firebase authentication successful")
+                            val user = auth.currentUser
 
-                        if (user != null) {
-                            viewModel.actions.login.setUser(
-                                User(
-                                    name = user.displayName,
-                                    email = user.email,
-                                    photoUrl = user.photoUrl.toString(),
-                                    uid = user.uid,
-                                ),
-                            )
+                            if (user != null) {
+                                Timber.d("==> User data retrieved successfully")
+                                viewModel.actions.login.setUser(
+                                    User(
+                                        name = user.displayName,
+                                        email = user.email,
+                                        photoUrl = user.photoUrl.toString(),
+                                        uid = user.uid,
+                                    ),
+                                )
+                            } else {
+                                Timber.e("==> Firebase user is null after successful authentication")
+                                viewModel.actions.login.setErrorMessage("Sign in failed - user data not available.")
+                            }
                         } else {
-                            viewModel.actions.login.setErrorMessage("Sign in failed.")
+                            val errorMessage = task.exception?.message ?: "Sign in failed."
+                            Timber.e(
+                                task.exception,
+                                "==> Firebase authentication failed: %s",
+                                errorMessage,
+                            )
+                            viewModel.actions.login.setErrorMessage("Firebase authentication failed: $errorMessage")
                         }
-                    } else {
-                        viewModel.actions.login.setErrorMessage("Sign in failed.")
                     }
-                }
+                    .addOnFailureListener { exception ->
+                        Timber.e(exception, "==> Firebase authentication failure")
+                        viewModel.actions.login.setErrorMessage("Authentication error: ${exception.message}")
+                    }
+            } catch (e: Exception) {
+                Timber.e(e, "==> Error processing Google credential")
+                viewModel.actions.login.setErrorMessage("Error processing credentials: ${e.message}")
+            }
         } else {
-            viewModel.actions.login.setErrorMessage(errorMessage = "Credential is not of type Google ID!")
+            Timber.e("==> Invalid credential type: ${credential.type}")
+            viewModel.actions.login.setErrorMessage("Invalid credential type received!")
         }
     }
 
