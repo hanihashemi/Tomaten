@@ -4,7 +4,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
@@ -12,6 +11,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -35,6 +35,7 @@ import io.github.hanihashemi.tomaten.ui.dialogs.login.LoginDialog
 import io.github.hanihashemi.tomaten.ui.screens.main.components.Tomi
 import io.github.hanihashemi.tomaten.ui.screens.main.components.TomiEmotes
 import io.github.hanihashemi.tomaten.ui.screens.main.components.TopBar
+import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
 
 @Suppress("FunctionName")
@@ -47,7 +48,26 @@ fun MainScreen(
     val actions = viewModel.actions
 
     var emote by remember { mutableStateOf<TomiEmotes>(TomiEmotes.Smile) }
-    var isZoomed by remember { mutableStateOf(false) }
+    var isZoomed = uiState.timer.isRunning
+    var hasTimerStarted by remember { mutableStateOf(false) }
+
+    // Handle emote changes based on timer state
+    LaunchedEffect(uiState.timer.isRunning) {
+        if (uiState.timer.isRunning) {
+            hasTimerStarted = true
+            emote = TomiEmotes.Smile
+        }
+    }
+
+    // Handle sad emote when timer stops incomplete
+    LaunchedEffect(uiState.timer.isRunning, uiState.timer.timeRemaining) {
+        if (hasTimerStarted && !uiState.timer.isRunning && uiState.timer.timeRemaining > 0) {
+            // Timer stopped but not completed (incomplete)
+            emote = TomiEmotes.Sad
+            delay(5000) // Wait 5 seconds
+            emote = TomiEmotes.Neutral
+        }
+    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -105,22 +125,6 @@ fun MainScreen(
                     emote = emote,
                     isZoomed = isZoomed,
                 )
-
-                Row {
-                    Button("Toggle Zoom") {
-                        isZoomed = !isZoomed
-                    }
-                    Button("Smile") {
-                        emote = TomiEmotes.Smile
-                    }
-                    Button("Neutral") {
-                        emote = TomiEmotes.Neutral
-                    }
-                    Button("Sad") {
-                        emote = TomiEmotes.Sad
-                    }
-                    Button("Surprise") { emote = TomiEmotes.Surprise }
-                }
             }
         }
 
