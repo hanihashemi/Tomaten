@@ -31,6 +31,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -66,26 +67,31 @@ fun MainScreen(
     val actions = viewModel.actions
 
     var emote by remember { mutableStateOf<TomiEmotes>(TomiEmotes.Smile) }
-    var isZoomed = uiState.timer.isRunning
+    val isZoomed = uiState.timer.isRunning
     var hasTimerStarted by remember { mutableStateOf(false) }
     var holdProgress by remember { mutableFloatStateOf(0f) }
     var isHolding by remember { mutableStateOf(false) }
+    var lastTimeRemaining by remember { mutableLongStateOf(0L) }
 
     // Handle emote changes based on timer state
     LaunchedEffect(uiState.timer.isRunning) {
         if (uiState.timer.isRunning) {
             hasTimerStarted = true
+            lastTimeRemaining = uiState.timer.timeRemaining
             emote = TomiEmotes.Smile
-        }
-    }
-
-    // Handle sad emote when timer stops incomplete
-    LaunchedEffect(uiState.timer.isRunning, uiState.timer.timeRemaining) {
-        if (hasTimerStarted && !uiState.timer.isRunning && uiState.timer.timeRemaining > 0) {
-            // Timer stopped but not completed (incomplete)
-            emote = TomiEmotes.Sad
-            delay(5000) // Wait 5 seconds
-            emote = TomiEmotes.Neutral
+        } else if (hasTimerStarted) {
+            // Timer stopped - check if it was completed or cancelled
+            if (lastTimeRemaining > 0L && uiState.timer.timeRemaining == 0L) {
+                // Timer completed successfully
+                emote = TomiEmotes.Smile // Keep happy emote for completion
+                delay(3000) // Show success for 3 seconds
+                emote = TomiEmotes.Neutral
+            } else if (uiState.timer.timeRemaining > 0L) {
+                // Timer stopped but not completed (cancelled/incomplete)
+                emote = TomiEmotes.Sad
+                delay(5000) // Wait 5 seconds
+                emote = TomiEmotes.Neutral
+            }
         }
     }
 
