@@ -1,12 +1,17 @@
 package io.github.hanihashemi.tomaten.ui.screens.main
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -14,11 +19,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -50,6 +57,8 @@ fun MainScreen(
     var emote by remember { mutableStateOf<TomiEmotes>(TomiEmotes.Smile) }
     var isZoomed = uiState.timer.isRunning
     var hasTimerStarted by remember { mutableStateOf(false) }
+    var holdProgress by remember { mutableFloatStateOf(0f) }
+    var isHolding by remember { mutableStateOf(false) }
 
     // Handle emote changes based on timer state
     LaunchedEffect(uiState.timer.isRunning) {
@@ -69,62 +78,133 @@ fun MainScreen(
         }
     }
 
+    // Handle hold progress animation
+    LaunchedEffect(isHolding) {
+        if (isHolding && uiState.timer.isRunning) {
+            val startTime = System.currentTimeMillis()
+            while (isHolding && System.currentTimeMillis() - startTime < 2000) {
+                val elapsed = System.currentTimeMillis() - startTime
+                holdProgress = (elapsed / 2000f).coerceIn(0f, 1f)
+                delay(16) // ~60fps updates
+            }
+            if (isHolding && holdProgress >= 1f) {
+                // Stop timer after 2 seconds of holding
+                actions.timer.startOrStop()
+                isHolding = false
+                holdProgress = 0f
+            }
+        } else {
+            holdProgress = 0f
+        }
+    }
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = { TopBar(actions, uiState) },
     ) { innerPadding ->
-        Column(
+        Box(
             modifier =
                 Modifier
                     .padding(innerPadding)
                     .fillMaxSize()
-                    .padding(Dimens.PaddingNormal),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceEvenly,
+                    .let { modifier ->
+                        if (uiState.timer.isRunning) {
+                            modifier.pointerInput(Unit) {
+                                detectTapGestures(
+                                    onPress = {
+                                        isHolding = true
+                                        tryAwaitRelease()
+                                        isHolding = false
+                                        holdProgress = 0f
+                                    },
+                                )
+                            }
+                        } else {
+                            modifier
+                        }
+                    },
         ) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                // Timer Display - Clickable to open time picker
-                Text(
-                    text = uiState.timer.timeRemaining.formatTime(),
-                    fontSize = 48.sp,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier =
-                        Modifier
-                            .padding(16.dp)
-                            .clickable(
-                                interactionSource = remember { MutableInteractionSource() },
-                                indication = null,
-                            ) {
-                                actions.timer.displayDialog(true)
-                            },
-                )
+            Column(
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .padding(Dimens.PaddingNormal),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.SpaceEvenly,
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    // Timer Display - Clickable to open time picker
+                    Text(
+                        text = uiState.timer.timeRemaining.formatTime(),
+                        fontSize = 48.sp,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier =
+                            Modifier
+                                .padding(16.dp)
+                                .clickable(
+                                    interactionSource = remember { MutableInteractionSource() },
+                                    indication = null,
+                                ) {
+                                    actions.timer.displayDialog(true)
+                                },
+                    )
 
-                Button(
-                    text = if (uiState.timer.isRunning) "Stop" else "Start",
-                    modifier = Modifier.widthIn(180.dp),
-                ) {
-                    viewModel.actions.timer.startOrStop()
-                }
-                Button(
-                    text = uiState.tag.selectedTag?.name ?: "Focus",
-                    style = ButtonStyles.Secondary,
-                ) {
-                    actions.tag.showSelectDialog()
-                }
-                Button(
-                    text = "Stats",
-                    style = ButtonStyles.Secondary,
-                ) {
-                    onNavigateToStats()
-                }
+                    // Only show start button when timer is not running
+                    if (!uiState.timer.isRunning) {
+                        Button(
+                            text = "Start",
+                            modifier = Modifier.widthIn(180.dp),
+                        ) {
+                            viewModel.actions.timer.startOrStop()
+                        }
+                    }
+                    Button(
+                        text = uiState.tag.selectedTag?.name ?: "Focus",
+                        style = ButtonStyles.Secondary,
+                    ) {
+                        actions.tag.showSelectDialog()
+                    }
+                    Button(
+                        text = "Stats",
+                        style = ButtonStyles.Secondary,
+                    ) {
+                        onNavigateToStats()
+                    }
 
-                Tomi(
-                    modifier = Modifier,
-                    emote = emote,
-                    isZoomed = isZoomed,
-                )
+                    Tomi(
+                        modifier = Modifier,
+                        emote = emote,
+                        isZoomed = isZoomed,
+                        onPress = { isHolding = true },
+                        onRelease = { isHolding = false },
+                    )
+                }
+            }
+
+            // Progress bar for hold-to-stop (positioned at top of screen)
+            if (uiState.timer.isRunning && isHolding && holdProgress > 0f) {
+                Column(
+                    modifier = Modifier.align(Alignment.TopCenter),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Text(
+                        text = "Hold for 2 seconds to cancel focus time",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                    )
+                    LinearProgressIndicator(
+                        progress = { holdProgress },
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .height(8.dp)
+                                .padding(horizontal = 16.dp),
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                }
             }
         }
 

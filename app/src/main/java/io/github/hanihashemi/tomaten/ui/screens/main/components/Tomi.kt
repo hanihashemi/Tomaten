@@ -42,6 +42,8 @@ fun Tomi(
     modifier: Modifier,
     emote: TomiEmotes,
     isZoomed: Boolean,
+    onPress: () -> Unit = {},
+    onRelease: () -> Unit = {},
 ) {
     val context = LocalContext.current
     val state = rememberTomiState()
@@ -173,6 +175,7 @@ fun Tomi(
                 .pointerInput(Unit) {
                     detectTapGestures(
                         onPress = {
+                            onPress()
                             coroutineScope.launch {
                                 // Press down animation
                                 state.scale.animateTo(0.98f, tween(100))
@@ -182,6 +185,7 @@ fun Tomi(
                                 // Wait for release
                                 awaitRelease()
 
+                                onRelease()
                                 // Release bounce animation
                                 coroutineScope.launch {
                                     state.scale.animateTo(1.08f, tween(100))
@@ -190,6 +194,7 @@ fun Tomi(
                                 }
                             } catch (e: Exception) {
                                 // Handle cancelled press (e.g. dragged out of bounds)
+                                onRelease()
                                 coroutineScope.launch {
                                     state.scale.animateTo(1f, tween(100))
                                 }
