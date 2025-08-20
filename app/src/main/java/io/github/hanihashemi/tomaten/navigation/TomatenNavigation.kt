@@ -11,8 +11,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import io.github.hanihashemi.tomaten.MainViewModel
+import io.github.hanihashemi.tomaten.R
 import io.github.hanihashemi.tomaten.data.model.Tag
 import io.github.hanihashemi.tomaten.ui.screens.main.MainScreen
+import io.github.hanihashemi.tomaten.ui.screens.settings.SettingsScreen
 import io.github.hanihashemi.tomaten.ui.screens.stats.StatsData
 import io.github.hanihashemi.tomaten.ui.screens.stats.StatsRange
 import io.github.hanihashemi.tomaten.ui.screens.stats.StatsScreen
@@ -22,6 +24,8 @@ sealed class TomatenDestination(val route: String) {
     data object Main : TomatenDestination("main")
 
     data object Stats : TomatenDestination("stats")
+
+    data object Settings : TomatenDestination("settings")
 }
 
 @Composable
@@ -37,6 +41,9 @@ fun TomatenNavigation(
             MainScreen(
                 onNavigateToStats = {
                     navController.navigate(TomatenDestination.Stats.route)
+                },
+                onNavigateToSettings = {
+                    navController.navigate(TomatenDestination.Settings.route)
                 },
                 viewModel = viewModel,
             )
@@ -54,6 +61,26 @@ fun TomatenNavigation(
                 selectedRange = selectedRange,
                 onTabSelected = { newRange ->
                     selectedRange = newRange
+                },
+                onBackPressed = {
+                    navController.popBackStack()
+                },
+            )
+        }
+
+        composable(TomatenDestination.Settings.route) {
+            SettingsScreen(
+                appName = "Tomaten",
+                appVersion = "1.0.0",
+                appLogoRes = R.drawable.tomato,
+                onWishlistClick = {
+                    // TODO: Implement wishlist functionality
+                },
+                onFeedbackClick = {
+                    // TODO: Implement feedback functionality
+                },
+                onAboutClick = {
+                    // TODO: Implement about navigation
                 },
                 onBackPressed = {
                     navController.popBackStack()
