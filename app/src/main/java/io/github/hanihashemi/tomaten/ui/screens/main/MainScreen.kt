@@ -61,6 +61,7 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun MainScreen(
     onNavigateToStats: () -> Unit = {},
+    onNavigateToSettings: () -> Unit = {},
     viewModel: MainViewModel = koinViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -252,7 +253,7 @@ fun MainScreen(
                     }
                     // Settings button
                     FloatingActionButton(
-                        onClick = { /* TODO: Add settings navigation */ },
+                        onClick = { onNavigateToSettings() },
                         modifier = Modifier.size(48.dp),
                         containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
                         contentColor = MaterialTheme.colorScheme.onSurface,
