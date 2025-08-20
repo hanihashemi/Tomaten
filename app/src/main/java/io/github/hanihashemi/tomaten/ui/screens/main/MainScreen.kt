@@ -87,7 +87,8 @@ fun MainScreen(
                 holdProgress = (elapsed / 2000f).coerceIn(0f, 1f)
                 delay(16) // ~60fps updates
             }
-            if (isHolding && holdProgress >= 1f) {
+            // Check if we completed the full 2 seconds while still holding
+            if (isHolding && System.currentTimeMillis() - startTime >= 2000) {
                 // Stop timer after 2 seconds of holding
                 actions.timer.startOrStop()
                 isHolding = false
