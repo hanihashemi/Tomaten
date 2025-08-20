@@ -1,16 +1,19 @@
 package io.github.hanihashemi.tomaten.ui.screens.main
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -167,12 +170,6 @@ fun MainScreen(
                     ) {
                         actions.tag.showSelectDialog()
                     }
-                    Button(
-                        text = "Stats",
-                        style = ButtonStyles.Secondary,
-                    ) {
-                        onNavigateToStats()
-                    }
 
                     Tomi(
                         modifier = Modifier,
@@ -205,6 +202,27 @@ fun MainScreen(
                                 .padding(horizontal = 16.dp),
                         color = MaterialTheme.colorScheme.primary,
                     )
+                }
+            }
+
+            // Stats button in bottom right corner with darker background
+            Row(
+                modifier =
+                    Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(16.dp)
+                        .background(
+                            color = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
+                            shape = RoundedCornerShape(8.dp),
+                        )
+                        .padding(8.dp),
+                horizontalArrangement = Arrangement.End,
+            ) {
+                Button(
+                    text = "Stats",
+                    style = ButtonStyles.Secondary,
+                ) {
+                    onNavigateToStats()
                 }
             }
         }
