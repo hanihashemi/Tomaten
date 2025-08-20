@@ -1,18 +1,25 @@
 package io.github.hanihashemi.tomaten.ui.screens.main
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
@@ -206,20 +213,50 @@ fun MainScreen(
                 }
             }
 
-            // Stats button in bottom right corner as circular FAB
-            FloatingActionButton(
-                onClick = { onNavigateToStats() },
-                modifier =
-                    Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(16.dp),
-                containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
-                contentColor = MaterialTheme.colorScheme.onSurface,
+            // Settings and Stats buttons in bottom right corner (slide to right when hiding)
+            AnimatedVisibility(
+                visible = !uiState.timer.isRunning,
+                enter =
+                    slideInHorizontally(
+                        initialOffsetX = { fullWidth -> fullWidth },
+                        animationSpec = tween(300),
+                    ),
+                exit =
+                    slideOutHorizontally(
+                        targetOffsetX = { fullWidth -> fullWidth },
+                        animationSpec = tween(300),
+                    ),
+                modifier = Modifier.align(Alignment.BottomEnd),
             ) {
-                Icon(
-                    imageVector = Icons.Filled.Info,
-                    contentDescription = "Stats",
-                )
+                Row(
+                    modifier = Modifier.padding(16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    // Stats button
+                    FloatingActionButton(
+                        onClick = { onNavigateToStats() },
+                        modifier = Modifier.size(48.dp),
+                        containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
+                        contentColor = MaterialTheme.colorScheme.onSurface,
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Info,
+                            contentDescription = "Stats",
+                        )
+                    }
+                    // Settings button
+                    FloatingActionButton(
+                        onClick = { /* TODO: Add settings navigation */ },
+                        modifier = Modifier.size(48.dp),
+                        containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
+                        contentColor = MaterialTheme.colorScheme.onSurface,
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Settings,
+                            contentDescription = "Settings",
+                        )
+                    }
+                }
             }
         }
 
