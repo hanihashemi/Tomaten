@@ -21,3 +21,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "Tomaten"
 include(":app")
+include(":shared")
