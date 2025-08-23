@@ -1,8 +1,8 @@
 package io.github.hanihashemi.tomaten.data.repository
 
+import co.touchlab.kermit.Logger
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import timber.log.Timber
 
 /**
  * Base repository class that provides common Firebase functionality for all repositories.
@@ -13,7 +13,7 @@ abstract class BaseFirebaseRepository {
         try {
             FirebaseFirestore.getInstance()
         } catch (e: Exception) {
-            Timber.w("Firebase Firestore not available: ${e.message}")
+            Logger.w("Firebase Firestore not available: ${e.message}")
             null
         }
     }
@@ -22,7 +22,7 @@ abstract class BaseFirebaseRepository {
         try {
             FirebaseAuth.getInstance()
         } catch (e: Exception) {
-            Timber.w("Firebase Auth not available: ${e.message}")
+            Logger.w("Firebase Auth not available: ${e.message}")
             null
         }
     }

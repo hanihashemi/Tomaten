@@ -1,11 +1,11 @@
 package io.github.hanihashemi.tomaten.data.repository
 
+import co.touchlab.kermit.Logger
 import com.google.firebase.firestore.DocumentId
 import com.google.firebase.firestore.FirebaseFirestore
 import io.github.hanihashemi.tomaten.data.model.Tag
 import io.github.hanihashemi.tomaten.data.model.TagColor
 import kotlinx.coroutines.tasks.await
-import timber.log.Timber
 
 /**
  * Firestore representation of a Tag for database operations.
@@ -67,12 +67,12 @@ class TagRepository : BaseFirebaseRepository() {
                     }
                 },
                 fallback = { skipReason ->
-                    Timber.d("getTags skipped: ${getSkipReason(skipReason)}")
+                    Logger.d("getTags skipped: ${getSkipReason(skipReason)}")
                     getDefaultTags()
                 },
             )
         } catch (e: Exception) {
-            Timber.e(e, "Error getting tags")
+            Logger.e("Error getting tags", e)
             getDefaultTags()
         }
     }
@@ -98,16 +98,16 @@ class TagRepository : BaseFirebaseRepository() {
                         .set(firestoreTag)
                         .await()
 
-                    Timber.d("Tag added successfully: ${tag.name}")
+                    Logger.d("Tag added successfully: ${tag.name}")
                     tag.id
                 },
                 fallback = { skipReason ->
-                    Timber.d("addTag skipped: ${getSkipReason(skipReason)}")
+                    Logger.d("addTag skipped: ${getSkipReason(skipReason)}")
                     tag.id
                 },
             )
         } catch (e: Exception) {
-            Timber.e(e, "Error adding tag: ${tag.name}")
+            Logger.e("Error adding tag: ${tag.name}", e)
             tag.id
         }
     }
@@ -131,16 +131,16 @@ class TagRepository : BaseFirebaseRepository() {
                         .delete()
                         .await()
 
-                    Timber.d("Tag deleted successfully: $tagId")
+                    Logger.d("Tag deleted successfully: $tagId")
                     true
                 },
                 fallback = { skipReason ->
-                    Timber.d("deleteTag skipped: ${getSkipReason(skipReason)}")
+                    Logger.d("deleteTag skipped: ${getSkipReason(skipReason)}")
                     true
                 },
             )
         } catch (e: Exception) {
-            Timber.e(e, "Error deleting tag: $tagId")
+            Logger.e("Error deleting tag: $tagId", e)
             false
         }
     }
@@ -171,9 +171,9 @@ class TagRepository : BaseFirebaseRepository() {
             }
 
             batch.commit().await()
-            Timber.d("Default tags initialized for user: $userId")
+            Logger.d("Default tags initialized for user: $userId")
         } catch (e: Exception) {
-            Timber.e(e, "Error initializing default tags")
+            Logger.e("Error initializing default tags", e)
         }
     }
 

@@ -2,17 +2,15 @@ package io.github.hanihashemi.tomaten
 
 import android.app.Application
 import android.os.Build
-import android.util.Log
+import co.touchlab.kermit.Logger
 import com.google.firebase.FirebaseApp
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.GlobalContext.startKoin
-import timber.log.Timber
 
 class App : Application() {
     override fun onCreate() {
         super.onCreate()
-        setupTimber()
         setupFirebase()
         setupKoin()
     }
@@ -31,14 +29,14 @@ class App : Application() {
                     "google_sdk" == Build.PRODUCT
 
             if (isEmulator) {
-                Timber.w("Running on emulator - Firebase initialization skipped to avoid Google Play Services issues")
+                Logger.w("Running on emulator - Firebase initialization skipped to avoid Google Play Services issues")
                 return
             }
 
             FirebaseApp.initializeApp(this)
-            Timber.d("Firebase initialized successfully")
+            Logger.d("Firebase initialized successfully")
         } catch (e: Exception) {
-            Timber.w(e, "Firebase initialization failed - continuing without Firebase")
+            Logger.w("Firebase initialization failed - continuing without Firebase", e)
         }
     }
 
@@ -47,36 +45,6 @@ class App : Application() {
             androidLogger()
             androidContext(this@App)
             modules(appModule)
-        }
-    }
-
-    private fun setupTimber() {
-        Timber.plant(Timber.DebugTree())
-        //             Timber.plant(CrashReportingTree())
-    }
-
-    private class CrashReportingTree : Timber.Tree() {
-        override fun log(
-            priority: Int,
-            tag: String?,
-            message: String,
-            t: Throwable?,
-        ) {
-            if (priority == Log.VERBOSE || priority == Log.DEBUG) return
-
-            // Replace with your own crash reporting logic (e.g., Firebase Crashlytics)
-            // Here we just print to Logcat as a placeholder
-            Log.println(priority, tag, message)
-
-            t?.let {
-                when (priority) {
-                    Log.ERROR -> Log.e(tag, "CrashReportingTree error", it)
-                    Log.WARN -> Log.w(tag, "CrashReportingTree warning", it)
-                    else -> {
-                        Log.w(tag, "CrashReportingTree warning", it)
-                    }
-                }
-            }
         }
     }
 }

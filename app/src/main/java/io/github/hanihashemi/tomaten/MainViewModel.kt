@@ -2,6 +2,7 @@ package io.github.hanihashemi.tomaten
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import co.touchlab.kermit.Logger
 import com.google.firebase.auth.FirebaseAuth
 import io.github.hanihashemi.tomaten.data.repository.BaseFirebaseRepository
 import io.github.hanihashemi.tomaten.data.repository.TagRepository
@@ -16,7 +17,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.update
-import timber.log.Timber
 
 open class MainViewModel(
     private val timerSessionRepository: TimerSessionRepository? = null,
@@ -65,7 +65,7 @@ open class MainViewModel(
         val timerState = uiState.value.timer
         val startTime = timerState.startTime
         if (startTime == null) {
-            Timber.w("Cannot stop timer session - no start time recorded")
+            Logger.w("Cannot stop timer session - no start time recorded")
             return
         }
 
@@ -83,12 +83,12 @@ open class MainViewModel(
             )?.onSuccess { sessionId ->
                 if (BaseFirebaseRepository.isSkippedOperation(sessionId)) {
                     val reason = BaseFirebaseRepository.getSkipReason(sessionId)
-                    Timber.d("Timer session not saved: $reason")
+                    Logger.d("Timer session not saved: $reason")
                 } else {
-                    Timber.d("Timer session saved successfully with ID: $sessionId")
+                    Logger.d("Timer session saved successfully with ID: $sessionId")
                 }
             }?.onFailure { error ->
-                Timber.e(error, "Failed to save timer session")
+                Logger.e("Failed to save timer session", error)
             }
         }
     }

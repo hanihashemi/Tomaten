@@ -1,8 +1,8 @@
 package io.github.hanihashemi.tomaten.data.repository
 
+import co.touchlab.kermit.Logger
 import io.github.hanihashemi.tomaten.data.model.TimerSession
 import kotlinx.coroutines.tasks.await
-import timber.log.Timber
 import java.util.Date
 
 /**
@@ -48,16 +48,16 @@ class TimerSessionRepository : BaseFirebaseRepository() {
                             .add(session)
                             .run { await() }
 
-                    Timber.d("Timer session saved with ID: ${documentRef.id}")
+                    Logger.d("Timer session saved with ID: ${documentRef.id}")
                     Result.success(documentRef.id)
                 },
                 fallback = { skipReason ->
-                    Timber.d("Timer session save skipped: ${getSkipReason(skipReason)}")
+                    Logger.d("Timer session save skipped: ${getSkipReason(skipReason)}")
                     Result.success(skipReason)
                 },
             )
         } catch (e: Exception) {
-            Timber.e(e, "Failed to save timer session")
+            Logger.e("Failed to save timer session", e)
             Result.failure(e)
         }
     }

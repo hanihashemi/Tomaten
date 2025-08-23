@@ -19,7 +19,7 @@ mockitoKotlin = "5.2.1"
 turbine = "1.0.0"
 uiTextGoogleFonts = "1.7.8"
 koin = "4.0.3"
-timber = "5.0.1"
+kermit = "2.0.2"
 googleServices = "4.4.3"
 ktlint = "12.1.2"
 
@@ -53,7 +53,7 @@ kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-t
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktorClientCore" }
 ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktorClientCore" }
 mockito-kotlin = { module = "org.mockito.kotlin:mockito-kotlin", version.ref = "mockitoKotlin" }
-timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber" }
+kermit = { group = "co.touchlab", name = "kermit", version.ref = "kermit" }
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
 
 [plugins]
