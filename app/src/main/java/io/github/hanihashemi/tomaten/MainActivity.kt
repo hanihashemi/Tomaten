@@ -1,7 +1,6 @@
 package io.github.hanihashemi.tomaten
 
 import android.Manifest
-import android.app.ActivityManager
 import android.app.AlertDialog
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -22,6 +21,7 @@ import androidx.credentials.GetCredentialRequest
 import androidx.credentials.exceptions.GetCredentialException
 import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import co.touchlab.kermit.Logger
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential.Companion.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
@@ -39,7 +39,6 @@ import io.github.hanihashemi.tomaten.ui.events.UiEvents
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import timber.log.Timber
 
 class MainActivity : ComponentActivity() {
     private val viewModel: MainViewModel by viewModel()
@@ -119,8 +118,6 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun login() {
-        Timber.d("==> Login process started")
-
         try {
             val googleIdOption =
                 GetGoogleIdOption.Builder()
@@ -134,8 +131,6 @@ class MainActivity : ComponentActivity() {
                     .build()
 
             val credentialManager = CredentialManager.create(this@MainActivity)
-            Timber.d("==> CredentialManager created, starting credential request")
-
             lifecycleScope.launch(Dispatchers.IO) {
                 try {
                     // Add timeout using withTimeout
@@ -146,15 +141,12 @@ class MainActivity : ComponentActivity() {
                                 context = this@MainActivity,
                             )
                         }
-                    Timber.d("==> Credential received successfully")
                     handleSignIn(result.credential)
-                } catch (e: kotlinx.coroutines.TimeoutCancellationException) {
-                    Timber.e(e, "==> Login timeout")
+                } catch (_: kotlinx.coroutines.TimeoutCancellationException) {
                     viewModel.actions.login.setErrorMessage(
                         "Login timed out. Please check your internet connection and try again.",
                     )
                 } catch (e: GetCredentialException) {
-                    Timber.e(e, "==> GetCredentialException during login")
                     when {
                         e.message?.contains("16") == true || e.message?.contains("28433") == true -> {
                             viewModel.actions.login.setErrorMessage(
@@ -173,7 +165,6 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                 } catch (e: SecurityException) {
-                    Timber.e(e, "==> SecurityException during login")
                     if (e.message?.contains("Unknown calling package name") == true) {
                         viewModel.actions.login.setErrorMessage(
                             "Authentication service error. Please restart the app and try again.",
@@ -182,12 +173,10 @@ class MainActivity : ComponentActivity() {
                         viewModel.actions.login.setErrorMessage("Security error: ${e.message}")
                     }
                 } catch (e: Exception) {
-                    Timber.e(e, "==> Unexpected login error")
                     viewModel.actions.login.setErrorMessage("Login failed: ${e.message}")
                 }
             }
         } catch (e: Exception) {
-            Timber.e(e, "==> Login setup failed")
             viewModel.actions.login.setErrorMessage("Login setup failed: ${e.message}")
         }
     }
@@ -209,25 +198,19 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun handleSignIn(credential: Credential) {
-        Timber.d("==> handleSignIn called with credential type: ${credential.type}")
-
         if (credential is CustomCredential && credential.type == TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
             try {
-                Timber.d("==> Processing Google ID token credential")
                 val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
                 val firebaseAuthCredential =
                     GoogleAuthProvider.getCredential(googleIdTokenCredential.idToken, null)
 
-                Timber.d("==> Starting Firebase authentication")
                 // Sign in to Firebase with using the token
                 auth.signInWithCredential(firebaseAuthCredential)
                     .addOnCompleteListener(this) { task ->
                         if (task.isSuccessful) {
-                            Timber.d("==> Firebase authentication successful")
                             val user = auth.currentUser
 
                             if (user != null) {
-                                Timber.d("==> User data retrieved successfully")
                                 viewModel.actions.login.setUser(
                                     User(
                                         name = user.displayName,
@@ -237,29 +220,27 @@ class MainActivity : ComponentActivity() {
                                     ),
                                 )
                             } else {
-                                Timber.e("==> Firebase user is null after successful authentication")
                                 viewModel.actions.login.setErrorMessage("Sign in failed - user data not available.")
                             }
                         } else {
                             val errorMessage = task.exception?.message ?: "Sign in failed."
-                            Timber.e(
+                            Logger.e(
+                                "==> Firebase authentication failed: $errorMessage",
                                 task.exception,
-                                "==> Firebase authentication failed: %s",
-                                errorMessage,
                             )
                             viewModel.actions.login.setErrorMessage("Firebase authentication failed: $errorMessage")
                         }
                     }
                     .addOnFailureListener { exception ->
-                        Timber.e(exception, "==> Firebase authentication failure")
+                        Logger.e("==> Firebase authentication failure", exception)
                         viewModel.actions.login.setErrorMessage("Authentication error: ${exception.message}")
                     }
             } catch (e: Exception) {
-                Timber.e(e, "==> Error processing Google credential")
+                Logger.e("==> Error processing Google credential", e)
                 viewModel.actions.login.setErrorMessage("Error processing credentials: ${e.message}")
             }
         } else {
-            Timber.e("==> Invalid credential type: ${credential.type}")
+            Logger.e("==> Invalid credential type: ${credential.type}")
             viewModel.actions.login.setErrorMessage("Invalid credential type received!")
         }
     }
@@ -286,15 +267,5 @@ class MainActivity : ComponentActivity() {
             }
             .create()
             .show()
-    }
-
-    private fun isTimerServiceRunning(): Boolean {
-        val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
-        for (service in activityManager.getRunningServices(Int.MAX_VALUE)) {
-            if (TimerService::class.java.name == service.service.className) {
-                return true
-            }
-        }
-        return false
     }
 }
