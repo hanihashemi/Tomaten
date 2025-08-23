@@ -10,9 +10,9 @@ kotlin {
     // which platforms this KMP module supports.
     // See: https://kotlinlang.org/docs/multiplatform-discover-project.html#targets
     androidLibrary {
-        namespace = "io.github.hanihashemi.tomaten"
-        compileSdk = 36
-        minSdk = 24
+        namespace = "io.github.hanihashemi.tomaten.shared"
+        compileSdk = 35
+        minSdk = 26
 
         withHostTestBuilder {
         }
