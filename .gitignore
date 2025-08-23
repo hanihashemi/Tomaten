@@ -6,7 +6,7 @@ local.properties
 
 # Build
 /build/
-/app/build/
+/androidApp/build/
 /captures/
 /.externalNativeBuild/
 
