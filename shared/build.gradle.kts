@@ -24,30 +24,27 @@ kotlin {
         }
     }
 
-    // For iOS targets, this is also where you should
-    // configure native binary output. For more information, see:
-    // https://kotlinlang.org/docs/multiplatform-build-native-binaries.html#build-xcframeworks
-
-    // A step-by-step guide on how to include this library in an XCode
-    // project can be found here:
-    // https://developer.android.com/kotlin/multiplatform/migrate
+    // iOS targets configuration
     val xcfName = "sharedKit"
-
+    
     iosX64 {
         binaries.framework {
             baseName = xcfName
+            isStatic = true
         }
     }
-
+    
     iosArm64 {
         binaries.framework {
             baseName = xcfName
+            isStatic = true
         }
     }
-
+    
     iosSimulatorArm64 {
         binaries.framework {
             baseName = xcfName
+            isStatic = true
         }
     }
 
@@ -96,5 +93,4 @@ kotlin {
             }
         }
     }
-
 }
