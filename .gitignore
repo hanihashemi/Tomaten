@@ -38,8 +38,13 @@ google-services.json
 # Others
 *.hprof
 
-# iOS Project (managed separately)
-iosApp/
-
 # Kotlin metadata
 .kotlin/
+
+# iOS specific build files (but keep the source code)
+iosApp/build/
+iosApp/.build/
+iosApp/DerivedData/
+iosApp/**/*.xcuserstate
+iosApp/**/*.xcworkspace/xcuserdata/
+iosApp/**/*.xcodeproj/xcuserdata/
