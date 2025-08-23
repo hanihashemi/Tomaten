@@ -37,3 +37,9 @@ google-services.json
 
 # Others
 *.hprof
+
+# iOS Project (managed separately)
+iosApp/
+
+# Kotlin metadata
+.kotlin/
