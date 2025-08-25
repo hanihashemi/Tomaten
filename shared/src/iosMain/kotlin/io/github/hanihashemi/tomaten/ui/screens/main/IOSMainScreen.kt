@@ -15,11 +15,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.unit.dp
+import io.github.hanihashemi.tomaten.viewmodel.IOSMainViewModel
 @Composable
 fun IOSMainScreen(
     timeRemaining: Long,
@@ -126,6 +129,31 @@ fun IOSMainScreen(
         selectTagDialogContent = {
             // iOS tag selection dialog - placeholder for now
         }
+    )
+}
+
+@Composable
+fun IOSMainScreenWithViewModel(
+    viewModel: IOSMainViewModel = IOSMainViewModel(),
+    onNavigateToStats: () -> Unit = {},
+    onNavigateToSettings: () -> Unit = {},
+) {
+    val uiState by viewModel.uiState.collectAsState()
+    val actions = viewModel.actions
+
+    IOSMainScreen(
+        timeRemaining = uiState.timer.timeRemaining,
+        selectedTag = uiState.tag.selectedTag?.name,
+        isTimerRunning = uiState.timer.isRunning,
+        isDialogVisible = uiState.timer.isDialogVisible,
+        isSelectDialogVisible = uiState.tag.isSelectDialogVisible,
+        onTimerClick = { actions.timer.displayDialog(true) },
+        onDisplayDialog = actions.timer::displayDialog,
+        onStartOrStop = actions.timer::startOrStop,
+        onSetTimeLimit = actions.timer::setTimeLimit,
+        onShowSelectDialog = actions.tag::showSelectDialog,
+        onNavigateToStats = onNavigateToStats,
+        onNavigateToSettings = onNavigateToSettings,
     )
 }
 

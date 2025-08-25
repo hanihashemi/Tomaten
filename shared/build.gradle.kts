@@ -80,6 +80,8 @@ kotlin {
                 // Add Android-specific dependencies here. Note that this source set depends on
                 // commonMain by default and will correctly pull the Android artifacts of any KMP
                 // dependencies declared in commonMain.
+                implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1")
+                implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1")
             }
         }
 
