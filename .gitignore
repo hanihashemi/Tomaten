@@ -6,7 +6,7 @@ local.properties
 
 # Build
 /build/
-/app/build/
+/androidApp/build/
 /captures/
 /.externalNativeBuild/
 
@@ -37,3 +37,14 @@ google-services.json
 
 # Others
 *.hprof
+
+# Kotlin metadata
+.kotlin/
+
+# iOS specific build files (but keep the source code)
+iosApp/build/
+iosApp/.build/
+iosApp/DerivedData/
+iosApp/**/*.xcuserstate
+iosApp/**/*.xcworkspace/xcuserdata/
+iosApp/**/*.xcodeproj/xcuserdata/
