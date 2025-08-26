@@ -23,4 +23,9 @@ class IOSMainViewModel : SharedMainViewModel() {
     fun getTimerState() = uiState.value.timer
     fun getTagState() = uiState.value.tag
     fun getLoginState() = uiState.value.login
+    
+    // Method with explicit parameter label for Swift
+    fun setTimeLimitSeconds(timeInSeconds: Long) {
+        setTimeLimit(timeInSeconds)
+    }
 }
