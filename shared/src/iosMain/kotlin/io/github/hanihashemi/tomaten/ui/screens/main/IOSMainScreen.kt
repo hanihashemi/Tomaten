@@ -141,7 +141,8 @@ fun IOSMainScreenWithViewModel(
     val uiState by viewModel.uiState.collectAsState()
     val actions = viewModel.actions
 
-    IOSMainScreen(
+    // Use the SharedMainScreen with default styling for consistent UI across platforms
+    SharedMainScreen(
         timeRemaining = uiState.timer.timeRemaining,
         selectedTag = uiState.tag.selectedTag?.name,
         isTimerRunning = uiState.timer.isRunning,

@@ -58,13 +58,44 @@ fun SharedMainScreen(
     onShowSelectDialog: () -> Unit,
     onNavigateToStats: () -> Unit = {},
     onNavigateToSettings: () -> Unit = {},
-    // Platform-specific composables as parameters
-    topBarContent: @Composable () -> Unit,
-    buttonContent: @Composable (String, () -> Unit) -> Unit,
-    tomiContent: @Composable (isZoomed: Boolean, onPress: () -> Unit, onRelease: () -> Unit) -> Unit,
-    loginDialogContent: @Composable () -> Unit,
-    timePickerDialogContent: @Composable () -> Unit,
-    selectTagDialogContent: @Composable () -> Unit,
+    // Platform-specific composables as parameters with default implementations
+    topBarContent: @Composable () -> Unit = {
+        Text(
+            text = "Tomaten",
+            style = MaterialTheme.typography.headlineLarge,
+            modifier = Modifier.padding(16.dp),
+        )
+    },
+    buttonContent: @Composable (String, () -> Unit) -> Unit = { text, onClick ->
+        androidx.compose.material3.Button(
+            onClick = onClick,
+            modifier = Modifier
+                .widthIn(min = 120.dp)
+                .padding(vertical = 8.dp)
+        ) {
+            Text(text)
+        }
+    },
+    tomiContent: @Composable (isZoomed: Boolean, onPress: () -> Unit, onRelease: () -> Unit) -> Unit = { isZoomed, onPress, onRelease ->
+        Box(
+            modifier = Modifier
+                .size(if (isZoomed) 100.dp else 80.dp)
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null
+                ) { onPress() }
+                .padding(16.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = "🍅",
+                fontSize = if (isZoomed) 64.sp else 48.sp
+            )
+        }
+    },
+    loginDialogContent: @Composable () -> Unit = {},
+    timePickerDialogContent: @Composable () -> Unit = {},
+    selectTagDialogContent: @Composable () -> Unit = {},
 ) {
     var emote by remember { mutableStateOf("Smile") }
     val isZoomed = isTimerRunning
