@@ -32,7 +32,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
-import io.github.hanihashemi.tomaten.R
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -49,17 +48,29 @@ fun Tomi(
     val state = rememberTomiState()
     val coroutineScope = rememberCoroutineScope()
 
-    val smilePlayer = remember { MediaPlayer.create(context, R.raw.smile) }
-    val neutralPlayer = remember { MediaPlayer.create(context, R.raw.neutral) }
-    val sadPlayer = remember { MediaPlayer.create(context, R.raw.sad) }
-    val surprisePlayer = remember { MediaPlayer.create(context, R.raw.surprised) }
+    val smilePlayer: MediaPlayer? = remember { 
+        val resId = context.resources.getIdentifier("smile", "raw", "io.github.hanihashemi.tomaten")
+        if (resId != 0) MediaPlayer.create(context, resId) else null
+    }
+    val neutralPlayer: MediaPlayer? = remember { 
+        val resId = context.resources.getIdentifier("neutral", "raw", "io.github.hanihashemi.tomaten")
+        if (resId != 0) MediaPlayer.create(context, resId) else null
+    }
+    val sadPlayer: MediaPlayer? = remember { 
+        val resId = context.resources.getIdentifier("sad", "raw", "io.github.hanihashemi.tomaten")
+        if (resId != 0) MediaPlayer.create(context, resId) else null
+    }
+    val surprisePlayer: MediaPlayer? = remember { 
+        val resId = context.resources.getIdentifier("surprised", "raw", "io.github.hanihashemi.tomaten")
+        if (resId != 0) MediaPlayer.create(context, resId) else null
+    }
 
     DisposableEffect(Unit) {
         onDispose {
-            smilePlayer.release()
-            neutralPlayer.release()
-            sadPlayer.release()
-            surprisePlayer.release()
+            smilePlayer?.release()
+            neutralPlayer?.release()
+            sadPlayer?.release()
+            surprisePlayer?.release()
         }
     }
 
@@ -106,24 +117,24 @@ fun Tomi(
 
         when (emote) {
             is TomiEmotes.Smile -> {
-                smilePlayer.start()
+                smilePlayer?.start()
                 state.progress.animateTo(emote.mouthTargetValue, tween(delay))
             }
 
             is TomiEmotes.Neutral -> {
-                neutralPlayer.start()
+                neutralPlayer?.start()
                 state.progress.animateTo(emote.mouthTargetValue, tween(delay))
             }
 
             is TomiEmotes.Sad -> {
-                sadPlayer.start()
+                sadPlayer?.start()
                 launch { state.eyeScale.animateTo(0.75f, tween(200)) }
                 launch { state.eyeYOffset.animateTo(6f, tween(400)) }
                 state.progress.animateTo(emote.mouthTargetValue, tween(delay))
             }
 
             is TomiEmotes.Surprise -> {
-                surprisePlayer.start()
+                surprisePlayer?.start()
                 launch { state.eyeScale.animateTo(1.25f, tween(200)) }
                 launch {
                     state.surpriseMouthScale.snapTo(0.6f)

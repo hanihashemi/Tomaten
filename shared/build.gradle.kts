@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.android.kotlin.multiplatform.library)
     alias(libs.plugins.android.lint)
+    alias(libs.plugins.kotlin.compose)
 }
 
 kotlin {
@@ -72,6 +73,11 @@ kotlin {
                 // Add Android-specific dependencies here. Note that this source set depends on
                 // commonMain by default and will correctly pull the Android artifacts of any KMP
                 // dependencies declared in commonMain.
+                implementation("androidx.compose.runtime:runtime:1.7.8")
+                implementation("androidx.compose.ui:ui:1.7.8")
+                implementation("androidx.compose.ui:ui-graphics:1.7.8")  
+                implementation("androidx.compose.material3:material3:1.3.2")
+                implementation("androidx.compose.foundation:foundation:1.7.8")
             }
         }
 
