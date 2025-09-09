@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.android.kotlin.multiplatform.library)
     alias(libs.plugins.android.lint)
+    alias(libs.plugins.kotlin.compose)
+    id("org.jetbrains.compose") version "1.8.2"
 }
 
 kotlin {
@@ -26,21 +28,21 @@ kotlin {
 
     // iOS targets configuration
     val xcfName = "sharedKit"
-    
+
     iosX64 {
         binaries.framework {
             baseName = xcfName
             isStatic = true
         }
     }
-    
+
     iosArm64 {
         binaries.framework {
             baseName = xcfName
             isStatic = true
         }
     }
-    
+
     iosSimulatorArm64 {
         binaries.framework {
             baseName = xcfName
@@ -57,7 +59,12 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(libs.kotlin.stdlib)
-                // Add KMP dependencies here
+                // Compose Multiplatform (shared UI)
+                implementation(compose.runtime)
+                implementation(compose.ui)
+                implementation(compose.foundation)
+                implementation(compose.animation)
+                implementation(compose.material)
             }
         }
 
@@ -69,9 +76,7 @@ kotlin {
 
         androidMain {
             dependencies {
-                // Add Android-specific dependencies here. Note that this source set depends on
-                // commonMain by default and will correctly pull the Android artifacts of any KMP
-                // dependencies declared in commonMain.
+                // Android picks appropriate Compose artifacts via Compose MPP
             }
         }
 
@@ -85,11 +90,8 @@ kotlin {
 
         iosMain {
             dependencies {
-                // Add iOS-specific dependencies here. This a source set created by Kotlin Gradle
-                // Plugin (KGP) that each specific iOS target (e.g., iosX64) depends on as
-                // part of KMP’s default source set hierarchy. Note that this source set depends
-                // on common by default and will correctly pull the iOS artifacts of any
-                // KMP dependencies declared in commonMain.
+                // Compose UI controller for iOS usage is provided by compose.ui
+                implementation(compose.ui)
             }
         }
     }
