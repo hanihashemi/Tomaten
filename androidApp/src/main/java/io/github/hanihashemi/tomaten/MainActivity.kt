@@ -29,13 +29,13 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
-import io.github.hanihashemi.tomaten.navigation.TomatenNavigation
 import io.github.hanihashemi.tomaten.services.TimerService
 import io.github.hanihashemi.tomaten.services.TimerService.Companion.REMAINING_TIME
 import io.github.hanihashemi.tomaten.services.TimerService.Companion.TIME_PARAM
 import io.github.hanihashemi.tomaten.services.TimerService.Companion.TIME_UPDATE_ACTION
 import io.github.hanihashemi.tomaten.theme.TomatenTheme
 import io.github.hanihashemi.tomaten.ui.events.UiEvents
+import io.github.hanihashemi.tomaten.ui.screens.main.SharedMainScreen
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -68,7 +68,8 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             TomatenTheme {
-                TomatenNavigation(viewModel = viewModel)
+                // TomatenNavigation(viewModel = viewModel)
+                SharedMainScreen()
             }
         }
         auth = Firebase.auth
